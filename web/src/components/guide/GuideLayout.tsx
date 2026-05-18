@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { TocItem } from "@/components/guide/DomainNav";
 import { DomainNav } from "@/components/guide/DomainNav";
 import { Progress } from "@/components/ui/progress";
+import { useProgress } from "@/components/progress/XpProvider";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "ccaf-guide-read";
@@ -17,6 +18,12 @@ interface GuideLayoutProps {
 export function GuideLayout({ html, toc }: GuideLayoutProps) {
   const [activeId, setActiveId] = useState<string>("");
   const [readCount, setReadCount] = useState(0);
+  const { mounted, setResumeGuideSection } = useProgress();
+
+  // Persist the active section as resume state (mounted-guarded).
+  useEffect(() => {
+    if (mounted && activeId) setResumeGuideSection(activeId);
+  }, [mounted, activeId, setResumeGuideSection]);
 
   const sectionIds = useMemo(
     () => toc.filter((t) => t.level <= 2).map((t) => t.id),

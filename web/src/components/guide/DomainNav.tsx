@@ -21,7 +21,7 @@ const STORAGE_KEY = "ccaf-guide-read";
 
 export function DomainNav({ items, activeId }: DomainNavProps) {
   const [read, setRead] = useState<Set<string>>(new Set());
-  const { guideSectionRead } = useProgress();
+  const { guideSectionRead, setResumeGuideSection } = useProgress();
 
   useEffect(() => {
     try {
@@ -53,6 +53,7 @@ export function DomainNav({ items, activeId }: DomainNavProps) {
       // Award guide XP (deduped by section id inside the progress engine,
       // so toggling read/unread repeatedly does not farm XP).
       guideSectionRead(id);
+      setResumeGuideSection(id);
     }
     persist(next);
   };

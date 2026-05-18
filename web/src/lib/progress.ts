@@ -9,7 +9,7 @@
  */
 
 const STORAGE_KEY = "ccaf-progress";
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 /** Legacy guide read-tracking key (set by DomainNav / GuideLayout). */
 const GUIDE_READ_KEY = "ccaf-guide-read";
@@ -38,6 +38,42 @@ export interface MockAttempt {
   dateISO: string;
 }
 
+/** Flashcard difficulty (re-declared locally to avoid a React/lib import). */
+export type Difficulty = "easy" | "medium" | "hard";
+
+/** Leitner-style spaced-repetition card schedule. */
+export interface SrsCard {
+  box: number;
+  intervalDays: number;
+  dueDateISO: string;
+  lastRatedISO: string;
+}
+
+/** Per-day study activity counters (keyed by local YYYY-MM-DD). */
+export interface DailyActivity {
+  cardsReviewed: number;
+  questionsAnswered: number;
+  sectionsRead: number;
+  xpEarned: number;
+}
+
+/** Resume / "continue where you left off" state. */
+export interface ResumeState {
+  drill:
+    | {
+        domain: number | "all";
+        difficulty: Difficulty | "all";
+        index: number;
+        dueOnly: boolean;
+      }
+    | null;
+  lastGuideSectionId: string | null;
+  updatedISO: string;
+}
+
+/** Leitner box → review interval (days). Box 1..5 → index 0..4. */
+const SRS_INTERVALS = [0, 1, 3, 7, 16] as const;
+
 interface ProgressState {
   version: number;
   xp: number;
@@ -55,6 +91,16 @@ interface ProgressState {
   badgesEarned: Record<string, string>;
   /** Opt-in leaderboard display name. */
   displayName: string;
+  /** Spaced-repetition schedule, keyed by flashcard id. */
+  srs: Record<string, SrsCard>;
+  /** Per-day study activity, keyed by local YYYY-MM-DD. */
+  activityLog: Record<string, DailyActivity>;
+  /** Resume state for drill / guide. */
+  resume: ResumeState;
+}
+
+function defaultResume(): ResumeState {
+  return { drill: null, lastGuideSectionId: null, updatedISO: "" };
 }
 
 function defaultState(): ProgressState {
@@ -68,7 +114,38 @@ function defaultState(): ProgressState {
     attempts: [],
     badgesEarned: {},
     displayName: "",
+    srs: {},
+    activityLog: {},
+    resume: defaultResume(),
   };
+}
+
+/**
+ * Forward-compatible migration. Starts from a fresh default state, spreads the
+ * parsed (possibly v1) blob over it, then explicitly coerces the three v2
+ * fields if they are missing or the wrong type. v1 blobs (no srs/activityLog/
+ * resume) load without crash and preserve xp, streak, attempts, flashcards,
+ * badges, displayName and guideSectionsAwarded unchanged.
+ */
+function migrate(parsed: Partial<ProgressState>): ProgressState {
+  const base = defaultState();
+  const merged: ProgressState = { ...base, ...parsed };
+  if (typeof merged.srs !== "object" || merged.srs === null) {
+    merged.srs = {};
+  }
+  if (typeof merged.activityLog !== "object" || merged.activityLog === null) {
+    merged.activityLog = {};
+  }
+  if (
+    typeof merged.resume !== "object" ||
+    merged.resume === null ||
+    !("drill" in merged.resume) ||
+    !("lastGuideSectionId" in merged.resume)
+  ) {
+    merged.resume = defaultResume();
+  }
+  merged.version = SCHEMA_VERSION;
+  return merged;
 }
 
 function isBrowser(): boolean {
@@ -86,12 +163,9 @@ function readState(): ProgressState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw) as Partial<ProgressState>;
-    // Forward-compatible merge: unknown/old schema falls back to defaults
-    // for any missing field rather than crashing.
-    if (parsed.version !== SCHEMA_VERSION) {
-      return { ...defaultState(), ...parsed, version: SCHEMA_VERSION };
-    }
-    return { ...defaultState(), ...parsed };
+    // Forward-compatible migration: unknown/old schema is upgraded in place
+    // rather than crashing. Behaviorally identical to the old merge for v1.
+    return migrate(parsed);
   } catch {
     usingMemory = true;
     memoryState = memoryState ?? defaultState();
@@ -143,6 +217,48 @@ function dayDiff(aISO: string, bISO: string): number {
   return Math.round((b.getTime() - a.getTime()) / 86_400_000);
 }
 
+/** Add N local-calendar days to today, returning YYYY-MM-DD. */
+function addDaysISO(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// ---- Activity log ----
+
+function emptyActivity(): DailyActivity {
+  return {
+    cardsReviewed: 0,
+    questionsAnswered: 0,
+    sectionsRead: 0,
+    xpEarned: 0,
+  };
+}
+
+export function getActivityLog(): Record<string, DailyActivity> {
+  return readState().activityLog;
+}
+
+/**
+ * Accumulate a partial activity delta into today's bucket. Used internally by
+ * the record* / awardXp engine fns; safe to call standalone (no-op on server).
+ */
+export function appendActivity(delta: Partial<DailyActivity>): void {
+  const state = readState();
+  const key = todayISO();
+  const cur = state.activityLog[key] ?? emptyActivity();
+  state.activityLog[key] = {
+    cardsReviewed: cur.cardsReviewed + (delta.cardsReviewed ?? 0),
+    questionsAnswered: cur.questionsAnswered + (delta.questionsAnswered ?? 0),
+    sectionsRead: cur.sectionsRead + (delta.sectionsRead ?? 0),
+    xpEarned: cur.xpEarned + (delta.xpEarned ?? 0),
+  };
+  writeState(state);
+}
+
 // ---- Streak ----
 
 /**
@@ -174,6 +290,7 @@ export function awardXp(amount: number, _reason: string): void {
   const state = readState();
   state.xp += amount;
   writeState(state);
+  appendActivity({ xpEarned: amount });
   touchStreak();
   refreshBadges();
 }
@@ -194,6 +311,7 @@ export function recordFlashcardReviewed(cardId: string): number {
   state.flashcardsReviewed.push(cardId);
   state.xp += XP.FLASHCARD_REVIEWED;
   writeState(state);
+  appendActivity({ cardsReviewed: 1 });
   touchStreak();
   refreshBadges();
   return XP.FLASHCARD_REVIEWED;
@@ -218,6 +336,7 @@ export function recordGuideSectionRead(sectionId: string): number {
   state.guideSectionsAwarded.push(sectionId);
   state.xp += XP.GUIDE_SECTION_READ;
   writeState(state);
+  appendActivity({ sectionsRead: 1 });
   touchStreak();
   refreshBadges();
   return XP.GUIDE_SECTION_READ;
@@ -245,6 +364,7 @@ export function recordAttempt(attempt: MockAttempt): {
 
   state.xp += xpEarned;
   writeState(state);
+  appendActivity({ questionsAnswered: attempt.total, xpEarned });
   touchStreak();
   refreshBadges();
   return { xpEarned, passed };
@@ -456,6 +576,298 @@ export function setDisplayName(name: string): void {
   writeState(state);
 }
 
+// ---- Spaced repetition (Leitner) ----
+
+export type SrsRating = "again" | "hard" | "good";
+
+/**
+ * Record a spaced-repetition rating for a card. Does NOT touch XP (the XP
+ * dedupe lives in recordFlashcardReviewed/Correct). Returns the new card.
+ *
+ *  - again → box 1, interval 0, due today
+ *  - hard  → box = max(1, box-1), interval = table[newBox], due today+interval
+ *  - good  → box = min(5, box+1), interval = table[newBox], due today+interval
+ */
+export function recordSrsRating(
+  cardId: string,
+  rating: SrsRating
+): SrsCard {
+  const state = readState();
+  const prev = state.srs[cardId];
+  const prevBox = prev ? prev.box : 0;
+  let box: number;
+  if (rating === "again") {
+    box = 1;
+  } else if (rating === "hard") {
+    box = Math.max(1, prevBox - 1);
+  } else {
+    box = Math.min(5, (prevBox || 0) + 1);
+  }
+  const intervalDays = SRS_INTERVALS[box - 1] ?? 0;
+  const card: SrsCard = {
+    box,
+    intervalDays,
+    dueDateISO: addDaysISO(intervalDays),
+    lastRatedISO: new Date().toISOString(),
+  };
+  state.srs[cardId] = card;
+  writeState(state);
+  return card;
+}
+
+export function getSrsCard(cardId: string): SrsCard | null {
+  return readState().srs[cardId] ?? null;
+}
+
+/** Count of scheduled cards per Leitner box (1..5). */
+export function getSrsBoxDistribution(): Record<number, number> {
+  const state = readState();
+  const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  for (const id of Object.keys(state.srs)) {
+    const b = state.srs[id].box;
+    if (b >= 1 && b <= 5) dist[b] += 1;
+  }
+  return dist;
+}
+
+/**
+ * Ids that are scheduled (rated at least once) AND due as of `nowISO`
+ * (defaults to today). New / un-rated cards are NOT due.
+ */
+export function getDueCardIds(
+  allCardIds: string[],
+  nowISO?: string
+): string[] {
+  const state = readState();
+  const today = nowISO ?? todayISO();
+  return allCardIds.filter((id) => {
+    const c = state.srs[id];
+    if (!c) return false;
+    return c.dueDateISO <= today;
+  });
+}
+
+export function getDueCount(allCardIds: string[]): number {
+  return getDueCardIds(allCardIds).length;
+}
+
+// ---- Guide read ids ----
+
+/**
+ * The set of guide section ids the user has marked read. Mirrors the
+ * guideReadCount() SSR / try-catch pattern; returns [] on server/throw.
+ */
+export function getGuideReadIds(): string[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = window.localStorage.getItem(GUIDE_READ_KEY);
+    if (!raw) return [];
+    const ids = JSON.parse(raw) as string[];
+    return Array.isArray(ids) ? ids : [];
+  } catch {
+    return [];
+  }
+}
+
+// ---- Domain mastery & weak areas ----
+
+export interface DomainMastery {
+  domain: number;
+  /** 0-100 composite mastery. */
+  mastery: number;
+  reviewedPct: number;
+  correctPct: number;
+  mockPct: number;
+  guidePct: number;
+}
+
+export interface WeakArea {
+  domain: number;
+  mastery: number;
+  /** Priority = (1 - mastery/100) * exam weight %. */
+  priority: number;
+  /** The weakest sub-score driving the recommendation. */
+  reason: "guide" | "mock" | "reviewed" | "correct";
+}
+
+interface MasteryInput {
+  reviewedIds: string[];
+  correctIds: string[];
+  attempts: MockAttempt[];
+  guideReadIds: string[];
+  /** Total guide slugs per domain, supplied by the caller (learn.ts). */
+  guideSlugCounts?: Record<number, number>;
+  /** Read guide slug ids that belong to each domain. */
+  guideReadByDomain?: Record<number, number>;
+}
+
+function domainOf(id: string): number {
+  const m = /^d(\d)/i.exec(id);
+  return m ? Number(m[1]) : 0;
+}
+
+export function getDomainMastery(input: MasteryInput): DomainMastery[] {
+  const reviewedByDomain: Record<number, number> = {};
+  for (const id of input.reviewedIds) {
+    const d = domainOf(id);
+    reviewedByDomain[d] = (reviewedByDomain[d] ?? 0) + 1;
+  }
+  const correctByDomain: Record<number, number> = {};
+  for (const id of input.correctIds) {
+    const d = domainOf(id);
+    correctByDomain[d] = (correctByDomain[d] ?? 0) + 1;
+  }
+  const mockByDomain: Record<number, { correct: number; total: number }> = {};
+  for (const a of input.attempts) {
+    for (const [k, v] of Object.entries(a.perDomain)) {
+      const d = Number(k);
+      const rec = mockByDomain[d] ?? { correct: 0, total: 0 };
+      rec.correct += v.correct;
+      rec.total += v.total;
+      mockByDomain[d] = rec;
+    }
+  }
+
+  const out: DomainMastery[] = [];
+  for (const d of [1, 2, 3, 4, 5]) {
+    const reviewedPct = Math.min(1, (reviewedByDomain[d] ?? 0) / CARDS_PER_DOMAIN);
+    const correctPct = Math.min(1, (correctByDomain[d] ?? 0) / CARDS_PER_DOMAIN);
+    const mock = mockByDomain[d];
+    const mockPct = mock ? mock.correct / Math.max(1, mock.total) : 0;
+    const total = input.guideSlugCounts?.[d] ?? 0;
+    const read = input.guideReadByDomain?.[d] ?? 0;
+    const guidePct = total > 0 ? Math.min(1, read / total) : 0;
+    const mastery = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          100 *
+            (0.3 * reviewedPct +
+              0.3 * correctPct +
+              0.25 * mockPct +
+              0.15 * guidePct)
+        )
+      )
+    );
+    out.push({
+      domain: d,
+      mastery,
+      reviewedPct,
+      correctPct,
+      mockPct,
+      guidePct,
+    });
+  }
+  return out;
+}
+
+export function getWeakAreas(mastery: DomainMastery[]): WeakArea[] {
+  const ranked = mastery
+    .map((m) => {
+      const weight = DOMAIN_NAMES[m.domain]
+        ? DOMAIN_WEIGHTS[m.domain] ?? 0
+        : 0;
+      const priority = (1 - m.mastery / 100) * weight;
+      const subs: { key: WeakArea["reason"]; v: number }[] = [
+        { key: "reviewed", v: m.reviewedPct },
+        { key: "correct", v: m.correctPct },
+        { key: "mock", v: m.mockPct },
+        { key: "guide", v: m.guidePct },
+      ];
+      subs.sort((a, b) => a.v - b.v);
+      return {
+        domain: m.domain,
+        mastery: m.mastery,
+        priority,
+        reason: subs[0].key,
+      };
+    })
+    .sort((a, b) => b.priority - a.priority);
+
+  const withDeficit = ranked.filter((r) => r.priority > 0);
+  if (withDeficit.length === 0) return [];
+  // Cap at 4, but show at least 2 when any deficit exists.
+  const count = Math.min(4, Math.max(2, withDeficit.length));
+  return withDeficit.slice(0, count);
+}
+
+const DOMAIN_WEIGHTS: Record<number, number> = {
+  1: 27,
+  2: 18,
+  3: 20,
+  4: 20,
+  5: 15,
+};
+
+/**
+ * Optional registered guide slug→domain map so getSnapshot() can include
+ * guidePct in mastery without a circular import on learn.ts. learn.ts calls
+ * registerGuideDomainMap() at module load (it is imported by /learn UI).
+ */
+let guideDomainMap: Record<string, number> | null = null;
+
+export function registerGuideDomainMap(map: Record<string, number>): void {
+  guideDomainMap = map;
+}
+
+function guideCountsFromMap(readIds: string[]): {
+  slugCounts: Record<number, number>;
+  readByDomain: Record<number, number>;
+} {
+  const slugCounts: Record<number, number> = {};
+  const readByDomain: Record<number, number> = {};
+  if (!guideDomainMap) return { slugCounts, readByDomain };
+  const readSet = new Set(readIds);
+  for (const [slug, dom] of Object.entries(guideDomainMap)) {
+    slugCounts[dom] = (slugCounts[dom] ?? 0) + 1;
+    if (readSet.has(slug)) {
+      readByDomain[dom] = (readByDomain[dom] ?? 0) + 1;
+    }
+  }
+  return { slugCounts, readByDomain };
+}
+
+function computeMastery(state: ProgressState): DomainMastery[] {
+  const guideReadIds = getGuideReadIds();
+  const { slugCounts, readByDomain } = guideCountsFromMap(guideReadIds);
+  return getDomainMastery({
+    reviewedIds: state.flashcardsReviewed,
+    correctIds: state.flashcardsCorrect,
+    attempts: state.attempts,
+    guideReadIds,
+    guideSlugCounts: slugCounts,
+    guideReadByDomain: readByDomain,
+  });
+}
+
+// ---- Resume state ----
+
+export function getResume(): ResumeState {
+  return readState().resume;
+}
+
+export function setResumeDrill(drill: ResumeState["drill"]): void {
+  const state = readState();
+  state.resume = {
+    ...state.resume,
+    drill,
+    updatedISO: new Date().toISOString(),
+  };
+  writeState(state);
+}
+
+export function setResumeGuideSection(id: string): void {
+  const state = readState();
+  if (state.resume.lastGuideSectionId === id) return;
+  state.resume = {
+    ...state.resume,
+    lastGuideSectionId: id,
+    updatedISO: new Date().toISOString(),
+  };
+  writeState(state);
+}
+
 // ---- Aggregate snapshot for UI ----
 
 export interface ProgressSnapshot {
@@ -473,6 +885,22 @@ export interface ProgressSnapshot {
   guideTotalSections: number;
   guidePct: number;
   displayName: string;
+  /** Count of scheduled SRS cards due today. */
+  srsDue: number;
+  /** Composite per-domain mastery (guidePct populated if map registered). */
+  mastery: DomainMastery[];
+  activityLog: Record<string, DailyActivity>;
+  resume: ResumeState;
+}
+
+/** Due count derived purely from the scheduled srs map (no deck needed). */
+function srsDueFromState(state: ProgressState): number {
+  const today = todayISO();
+  let n = 0;
+  for (const id of Object.keys(state.srs)) {
+    if (state.srs[id].dueDateISO <= today) n += 1;
+  }
+  return n;
 }
 
 /**
@@ -512,6 +940,10 @@ export function getSnapshot(guideTotalSections = 0): ProgressSnapshot {
         ? Math.round((readCount / guideTotalSections) * 100)
         : 0,
     displayName: state.displayName,
+    srsDue: srsDueFromState(state),
+    mastery: computeMastery(state),
+    activityLog: state.activityLog,
+    resume: state.resume,
   };
 }
 

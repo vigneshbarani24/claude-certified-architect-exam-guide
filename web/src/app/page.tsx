@@ -10,6 +10,7 @@ import {
   Trophy,
   Flame,
   Share2,
+  Compass,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,12 @@ const FEATURES = [
     desc: "Download per-domain markdown bundles to load into Google NotebookLM as a study source.",
     href: "/notebooklm",
     icon: FileText,
+  },
+  {
+    title: "Learn Dashboard",
+    desc: "Personalized study plan: domain mastery, what to study next, spaced review, and history.",
+    href: "/learn",
+    icon: Compass,
   },
   {
     title: "Profile & XP",

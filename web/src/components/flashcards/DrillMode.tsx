@@ -4,17 +4,29 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, RefreshCw, RotateCcw } from "lucide-react";
 
 import type { Flashcard } from "@/lib/flashcards";
+import type { ResumeState } from "@/lib/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useProgress } from "@/components/progress/XpProvider";
 import { FlashCard } from "./FlashCard";
 
+/** Filter context passed from /flashcards so we can persist resume state. */
+type FilterMeta = NonNullable<ResumeState["drill"]>;
+
 interface DrillModeProps {
   deck: Flashcard[];
+  /** Optional starting index (from a resumed deep link). */
+  initialIndex?: number;
+  /** Optional filter context; when present we persist resume state. */
+  filterMeta?: Omit<FilterMeta, "index">;
 }
 
-export function DrillMode({ deck }: DrillModeProps) {
-  const [index, setIndex] = useState(0);
+export function DrillMode({
+  deck,
+  initialIndex = 0,
+  filterMeta,
+}: DrillModeProps) {
+  const [index, setIndex] = useState(initialIndex);
   const [flipped, setFlipped] = useState(false);
   const [hardIds, setHardIds] = useState<Set<string>>(new Set());
   const [finished, setFinished] = useState(false);
@@ -24,8 +36,14 @@ export function DrillMode({ deck }: DrillModeProps) {
   const flashTimer = useRef<number | null>(null);
   const sessionStartBadges = useRef<Set<string>>(new Set());
 
-  const { flashcardReviewed, flashcardCorrect, snapshot, mounted } =
-    useProgress();
+  const {
+    flashcardReviewed,
+    flashcardCorrect,
+    srsRate,
+    recordResumeDrill,
+    snapshot,
+    mounted,
+  } = useProgress();
 
   const total = deck.length;
 
@@ -39,14 +57,35 @@ export function DrillMode({ deck }: DrillModeProps) {
 
   // Reset when the deck changes (filters applied upstream).
   useEffect(() => {
-    setIndex(0);
+    setIndex(initialIndex);
     setFlipped(false);
     setHardIds(new Set());
     setSeen(new Set());
     setFinished(false);
     setSessionXp(0);
     setXpFlash(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deck]);
+
+  // Persist resume state on card change and on unmount (if filterMeta given).
+  const filterMetaRef = useRef(filterMeta);
+  filterMetaRef.current = filterMeta;
+  const indexRef = useRef(index);
+  indexRef.current = index;
+
+  useEffect(() => {
+    const fm = filterMeta;
+    if (!fm) return;
+    recordResumeDrill({ ...fm, index });
+  }, [index, filterMeta, recordResumeDrill]);
+
+  useEffect(() => {
+    return () => {
+      const fm = filterMetaRef.current;
+      if (!fm) return;
+      recordResumeDrill({ ...fm, index: indexRef.current });
+    };
+  }, [recordResumeDrill]);
 
   // Snapshot the badges the user already has when a session begins, so we
   // can surface only newly unlocked badges in the summary.
@@ -76,19 +115,11 @@ export function DrillMode({ deck }: DrillModeProps) {
   const go = useCallback(
     (dir: 1 | -1) => {
       if (total === 0) return;
-      setFlipped((wasFlipped) => {
-        const card = deck[index];
-        if (card) {
-          markSeen(card.id);
-          // Advancing forward after revealing the answer, without having
-          // flagged the card hard, is treated as a "knew it" self-mark.
-          if (dir === 1 && wasFlipped && !hardIds.has(card.id)) {
-            const earned = flashcardCorrect(card.id);
-            if (earned > 0) showXp(earned, "knew it");
-          }
-        }
-        return false;
-      });
+      // Navigation no longer auto-marks "correct" — the explicit Good
+      // button owns the self-mark. We still record the card as seen.
+      const card = deck[index];
+      if (card) markSeen(card.id);
+      setFlipped(false);
       setIndex((i) => {
         const ni = i + dir;
         if (ni >= total) {
@@ -99,7 +130,30 @@ export function DrillMode({ deck }: DrillModeProps) {
         return ni;
       });
     },
-    [deck, index, total, markSeen, hardIds, flashcardCorrect, showXp]
+    [deck, index, total, markSeen]
+  );
+
+  // Explicit spaced-repetition ratings (shown once the card is flipped).
+  const rate = useCallback(
+    (rating: "again" | "hard" | "good") => {
+      const card = deck[index];
+      if (!card) return;
+      markSeen(card.id);
+      srsRate(card.id, rating);
+      if (rating === "good") {
+        const earned = flashcardCorrect(card.id);
+        if (earned > 0) showXp(earned, "knew it");
+      } else if (rating === "hard") {
+        setHardIds((prev) => {
+          if (prev.has(card.id)) return prev;
+          const next = new Set(prev);
+          next.add(card.id);
+          return next;
+        });
+      }
+      go(1);
+    },
+    [deck, index, markSeen, srsRate, flashcardCorrect, showXp, go]
   );
 
   const flip = useCallback(() => {
@@ -131,14 +185,23 @@ export function DrillMode({ deck }: DrillModeProps) {
       } else if (e.code === "ArrowLeft") {
         e.preventDefault();
         go(-1);
+      } else if (flipped && (e.code === "Digit1" || e.code === "Numpad1")) {
+        e.preventDefault();
+        rate("again");
+      } else if (flipped && (e.code === "Digit2" || e.code === "Numpad2")) {
+        e.preventDefault();
+        rate("hard");
+      } else if (flipped && (e.code === "Digit3" || e.code === "Numpad3")) {
+        e.preventDefault();
+        rate("good");
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [flip, go, finished]);
+  }, [flip, go, rate, flipped, finished]);
 
   const restart = () => {
-    setIndex(0);
+    setIndex(initialIndex);
     setFlipped(false);
     setHardIds(new Set());
     setSeen(new Set());
@@ -253,6 +316,30 @@ export function DrillMode({ deck }: DrillModeProps) {
         isHard={hardIds.has(card.id)}
       />
 
+      {flipped && (
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="outline"
+            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+            onClick={() => rate("again")}
+          >
+            Again
+            <span className="ml-1 font-mono text-xs opacity-60">1</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => rate("hard")}
+          >
+            Hard
+            <span className="ml-1 font-mono text-xs opacity-60">2</span>
+          </Button>
+          <Button onClick={() => rate("good")}>
+            Good
+            <span className="ml-1 font-mono text-xs opacity-60">3</span>
+          </Button>
+        </div>
+      )}
+
       <div className="flex items-center justify-center gap-3">
         <Button
           variant="outline"
@@ -273,7 +360,8 @@ export function DrillMode({ deck }: DrillModeProps) {
       </div>
 
       <p className="text-center font-mono text-xs text-claude-muted">
-        Shortcuts: Space flip · ← prev · → next
+        Shortcuts: Space flip · ← prev · → next · when flipped 1 again · 2
+        hard · 3 good
       </p>
     </div>
   );

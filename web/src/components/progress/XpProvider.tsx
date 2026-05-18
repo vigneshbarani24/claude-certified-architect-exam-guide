@@ -17,8 +17,14 @@ import {
   recordGuideSectionRead,
   recordAttempt as recordAttemptLib,
   setDisplayName as setDisplayNameLib,
+  recordSrsRating as recordSrsRatingLib,
+  setResumeDrill as setResumeDrillLib,
+  setResumeGuideSection as setResumeGuideSectionLib,
   type ProgressSnapshot,
   type MockAttempt,
+  type SrsRating,
+  type SrsCard,
+  type ResumeState,
 } from "@/lib/progress";
 
 interface ProgressContextValue {
@@ -34,6 +40,9 @@ interface ProgressContextValue {
     passed: boolean;
   };
   setDisplayName: (name: string) => void;
+  srsRate: (cardId: string, rating: SrsRating) => SrsCard;
+  recordResumeDrill: (drill: ResumeState["drill"]) => void;
+  setResumeGuideSection: (id: string) => void;
   refresh: () => void;
 }
 
@@ -114,6 +123,31 @@ export function XpProvider({ children }: { children: React.ReactNode }) {
     [refresh]
   );
 
+  const srsRate = useCallback(
+    (cardId: string, rating: SrsRating) => {
+      const card = recordSrsRatingLib(cardId, rating);
+      refresh();
+      return card;
+    },
+    [refresh]
+  );
+
+  const recordResumeDrill = useCallback(
+    (drill: ResumeState["drill"]) => {
+      setResumeDrillLib(drill);
+      refresh();
+    },
+    [refresh]
+  );
+
+  const setResumeGuideSection = useCallback(
+    (id: string) => {
+      setResumeGuideSectionLib(id);
+      refresh();
+    },
+    [refresh]
+  );
+
   return (
     <ProgressContext.Provider
       value={{
@@ -125,6 +159,9 @@ export function XpProvider({ children }: { children: React.ReactNode }) {
         guideSectionRead,
         recordAttempt,
         setDisplayName,
+        srsRate,
+        recordResumeDrill,
+        setResumeGuideSection,
         refresh,
       }}
     >

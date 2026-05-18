@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RotateCcw, Trophy, Users } from "lucide-react";
+import Link from "next/link";
+import { Compass, RotateCcw, Trophy, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -152,6 +153,12 @@ export function ScoreBoard({
             <Button variant="outline" onClick={challenge}>
               <Users className="h-4 w-4" />
               {challengeCopied ? "Link copied!" : "Challenge a friend"}
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/learn">
+                <Compass className="h-4 w-4" />
+                See study plan
+              </Link>
             </Button>
           </div>
         </CardContent>

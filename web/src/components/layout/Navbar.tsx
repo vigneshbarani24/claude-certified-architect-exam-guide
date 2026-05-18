@@ -23,10 +23,26 @@ const NAV_LINKS = [
   { href: "/guide", label: "Guide" },
   { href: "/mock-exam", label: "Mock Exam" },
   { href: "/flashcards", label: "Flashcards" },
+  { href: "/learn", label: "Learn" },
   { href: "/notebooklm", label: "NotebookLM" },
   { href: "/profile", label: "Profile" },
   { href: "/leaderboard", label: "Leaderboard" },
 ];
+
+function DuePill({ onClick }: { onClick?: () => void }) {
+  const { mounted, snapshot } = useProgress();
+  if (!mounted || snapshot.srsDue <= 0) return null;
+  return (
+    <Link
+      href="/learn"
+      onClick={onClick}
+      className="flex items-center gap-1 rounded-md border border-claude-orange/40 bg-claude-orange/10 px-2 py-1.5 font-mono text-xs text-claude-orange transition-colors hover:bg-claude-orange/20"
+      aria-label={`${snapshot.srsDue} cards due for review`}
+    >
+      {snapshot.srsDue} due
+    </Link>
+  );
+}
 
 function XpChip({
   className,
@@ -98,6 +114,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <DuePill />
           <XpChip className="hidden lg:flex" />
           <Button asChild variant="outline" size="sm" className="hidden sm:flex">
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
@@ -123,11 +140,14 @@ export function Navbar() {
                   CCAF Guide
                 </SheetTitle>
               </SheetHeader>
-              <div className="mt-4">
+              <div className="mt-4 space-y-2">
                 <XpChip
                   className="w-full justify-center"
                   onClick={() => setOpen(false)}
                 />
+                <div className="flex justify-center">
+                  <DuePill onClick={() => setOpen(false)} />
+                </div>
               </div>
               <nav className="mt-4 flex flex-col gap-1">
                 {NAV_LINKS.map((l) => (

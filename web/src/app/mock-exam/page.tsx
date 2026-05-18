@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import {
   getAllQuestions,
@@ -20,7 +21,8 @@ import { cn } from "@/lib/utils";
 
 type Phase = "setup" | "running" | "done";
 
-export default function MockExamPage() {
+function MockExamInner() {
+  const params = useSearchParams();
   const allScenarios = SCENARIOS.map((s) => s.title);
   const [phase, setPhase] = useState<Phase>("setup");
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
@@ -70,6 +72,29 @@ export default function MockExamPage() {
     setAnswered(false);
     setPhase("running");
   };
+
+  // Auto-start a single scenario when arriving via /mock-exam?scenario=<id>
+  // (deep link from /learn). Runs exactly once.
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (autoStartedRef.current) return;
+    const sid = params.get("scenario");
+    if (!sid) return;
+    const scenario = SCENARIOS.find((s) => s.id === sid);
+    if (!scenario) return;
+    autoStartedRef.current = true;
+    const pool = filterByScenarios([scenario.title]);
+    if (pool.length === 0) return;
+    setSelectedScenarios([scenario.title]);
+    setScenarioLabel(scenario.title);
+    setDeck(shuffle(pool));
+    setIndex(0);
+    setAnswers({});
+    setSelected(null);
+    setAnswered(false);
+    setPhase("running");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const current = deck[index];
 
@@ -225,5 +250,13 @@ export default function MockExamPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function MockExamPage() {
+  return (
+    <Suspense fallback={null}>
+      <MockExamInner />
+    </Suspense>
   );
 }
