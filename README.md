@@ -22,6 +22,28 @@ exam guide. No paywalls, no accounts, no third-party study sites.
 | CLI Quiz | Offline quiz runner with weak-area tracking | Python + TypeScript |
 | Mock Exam | Scenario-based MCQ with explanations and shareable score cards | Web |
 | NotebookLM Bundles | Per-domain markdown packages for audio study | Markdown |
+| Progress & Sharing | XP, streaks, rank tiers, badges, and shareable score/rank cards | Web |
+
+## Gamified & Shareable
+
+The web app turns studying into a loop worth coming back to — and worth
+sharing. Everything is **100% on-device** (localStorage); there is no server,
+no account, and no tracking.
+
+- **Shareable score cards.** Finish the mock exam and generate a branded PNG
+  result card (score, pass proxy, per-domain breakdown) with one-click share
+  to X and LinkedIn, or "Challenge a friend".
+- **XP, streaks & ranks.** Earn XP for flashcards, mock questions, and guide
+  reading; build a daily streak; climb from Apprentice → Practitioner →
+  Architect → Master Architect.
+- **Badges.** Unlock "Domain Cleared", "Centurion", "Perfect Mock", "Pass",
+  and streak badges as you progress.
+- **On-device leaderboard.** Your mock attempts ranked best-to-worst on
+  `/leaderboard`, with a shareable rank card. Scores never leave your device —
+  you share the card, not your data.
+
+> Want to help the deck grow? Open a submission issue or send a card from the
+> contribution flow — see [Contributing](#contributing).
 
 ## Quick Start
 

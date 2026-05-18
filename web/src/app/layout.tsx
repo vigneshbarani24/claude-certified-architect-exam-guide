@@ -3,6 +3,7 @@ import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { XpProvider } from "@/components/progress/XpProvider";
 
 const display = Instrument_Serif({
   weight: "400",
@@ -42,9 +43,11 @@ export default function RootLayout({
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <XpProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </XpProvider>
       </body>
     </html>
   );

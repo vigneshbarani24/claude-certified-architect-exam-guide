@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useProgress } from "@/components/progress/XpProvider";
 
 export interface TocItem {
   id: string;
@@ -20,6 +21,7 @@ const STORAGE_KEY = "ccaf-guide-read";
 
 export function DomainNav({ items, activeId }: DomainNavProps) {
   const [read, setRead] = useState<Set<string>>(new Set());
+  const { guideSectionRead } = useProgress();
 
   useEffect(() => {
     try {
@@ -44,8 +46,14 @@ export function DomainNav({ items, activeId }: DomainNavProps) {
 
   const toggle = (id: string) => {
     const next = new Set(read);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+      // Award guide XP (deduped by section id inside the progress engine,
+      // so toggling read/unread repeatedly does not farm XP).
+      guideSectionRead(id);
+    }
     persist(next);
   };
 

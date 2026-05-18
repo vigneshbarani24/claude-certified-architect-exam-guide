@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, RefreshCw, RotateCcw } from "lucide-react";
 
 import type { Flashcard } from "@/lib/flashcards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useProgress } from "@/components/progress/XpProvider";
 import { FlashCard } from "./FlashCard";
 
 interface DrillModeProps {
@@ -18,8 +19,23 @@ export function DrillMode({ deck }: DrillModeProps) {
   const [hardIds, setHardIds] = useState<Set<string>>(new Set());
   const [finished, setFinished] = useState(false);
   const [seen, setSeen] = useState<Set<string>>(new Set());
+  const [sessionXp, setSessionXp] = useState(0);
+  const [xpFlash, setXpFlash] = useState<string | null>(null);
+  const flashTimer = useRef<number | null>(null);
+  const sessionStartBadges = useRef<Set<string>>(new Set());
+
+  const { flashcardReviewed, flashcardCorrect, snapshot, mounted } =
+    useProgress();
 
   const total = deck.length;
+
+  const showXp = useCallback((amount: number, label: string) => {
+    if (amount <= 0) return;
+    setSessionXp((x) => x + amount);
+    setXpFlash(`+${amount} XP · ${label}`);
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setXpFlash(null), 1400);
+  }, []);
 
   // Reset when the deck changes (filters applied upstream).
   useEffect(() => {
@@ -28,23 +44,52 @@ export function DrillMode({ deck }: DrillModeProps) {
     setHardIds(new Set());
     setSeen(new Set());
     setFinished(false);
+    setSessionXp(0);
+    setXpFlash(null);
   }, [deck]);
 
-  const markSeen = useCallback((id: string) => {
-    setSeen((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-  }, []);
+  // Snapshot the badges the user already has when a session begins, so we
+  // can surface only newly unlocked badges in the summary.
+  useEffect(() => {
+    if (mounted) {
+      sessionStartBadges.current = new Set(
+        snapshot.badges.map((b) => b.id)
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deck, mounted]);
+
+  const markSeen = useCallback(
+    (id: string) => {
+      setSeen((prev) => {
+        if (prev.has(id)) return prev;
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
+      const earned = flashcardReviewed(id);
+      if (earned > 0) showXp(earned, "card reviewed");
+    },
+    [flashcardReviewed, showXp]
+  );
 
   const go = useCallback(
     (dir: 1 | -1) => {
       if (total === 0) return;
-      setFlipped(false);
+      setFlipped((wasFlipped) => {
+        const card = deck[index];
+        if (card) {
+          markSeen(card.id);
+          // Advancing forward after revealing the answer, without having
+          // flagged the card hard, is treated as a "knew it" self-mark.
+          if (dir === 1 && wasFlipped && !hardIds.has(card.id)) {
+            const earned = flashcardCorrect(card.id);
+            if (earned > 0) showXp(earned, "knew it");
+          }
+        }
+        return false;
+      });
       setIndex((i) => {
-        const card = deck[i];
-        if (card) markSeen(card.id);
         const ni = i + dir;
         if (ni >= total) {
           setFinished(true);
@@ -54,7 +99,7 @@ export function DrillMode({ deck }: DrillModeProps) {
         return ni;
       });
     },
-    [deck, total, markSeen]
+    [deck, index, total, markSeen, hardIds, flashcardCorrect, showXp]
   );
 
   const flip = useCallback(() => {
@@ -98,7 +143,14 @@ export function DrillMode({ deck }: DrillModeProps) {
     setHardIds(new Set());
     setSeen(new Set());
     setFinished(false);
+    setSessionXp(0);
+    setXpFlash(null);
+    sessionStartBadges.current = new Set(snapshot.badges.map((b) => b.id));
   };
+
+  const newBadges = snapshot.badges.filter(
+    (b) => !sessionStartBadges.current.has(b.id)
+  );
 
   if (total === 0) {
     return (
@@ -135,6 +187,35 @@ export function DrillMode({ deck }: DrillModeProps) {
               <div className="text-xs text-muted-foreground">Marked hard</div>
             </div>
           </div>
+
+          <div className="rounded-md border border-claude-orange/40 bg-claude-orange/5 p-4">
+            <div className="font-mono text-2xl text-claude-orange">
+              +{sessionXp} XP
+            </div>
+            <div className="text-xs text-muted-foreground">
+              earned this session · {snapshot.rank.name} ·{" "}
+              {snapshot.xp.toLocaleString()} XP total
+            </div>
+          </div>
+
+          {newBadges.length > 0 && (
+            <div className="space-y-2">
+              <p className="font-mono text-xs uppercase tracking-wider text-claude-muted">
+                New badge{newBadges.length > 1 ? "s" : ""} unlocked
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {newBadges.map((b) => (
+                  <span
+                    key={b.id}
+                    className="rounded-md border border-claude-orange px-3 py-1 font-mono text-xs text-claude-orange"
+                  >
+                    {b.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <Button onClick={restart}>
             <RotateCcw className="h-4 w-4" />
             Restart deck
@@ -152,9 +233,16 @@ export function DrillMode({ deck }: DrillModeProps) {
         <span className="font-mono text-sm text-muted-foreground">
           {index + 1} / {total}
         </span>
-        <span className="font-mono text-xs text-claude-muted">
-          {hardIds.size} marked hard
-        </span>
+        <div className="flex items-center gap-3">
+          {xpFlash && (
+            <span className="animate-in fade-in font-mono text-xs text-claude-orange">
+              {xpFlash}
+            </span>
+          )}
+          <span className="font-mono text-xs text-claude-muted">
+            {hardIds.size} marked hard
+          </span>
+        </div>
       </div>
 
       <FlashCard

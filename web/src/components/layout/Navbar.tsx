@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Github, Menu } from "lucide-react";
+import { Github, Menu, Flame } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useProgress } from "@/components/progress/XpProvider";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -23,7 +24,42 @@ const NAV_LINKS = [
   { href: "/mock-exam", label: "Mock Exam" },
   { href: "/flashcards", label: "Flashcards" },
   { href: "/notebooklm", label: "NotebookLM" },
+  { href: "/profile", label: "Profile" },
+  { href: "/leaderboard", label: "Leaderboard" },
 ];
+
+function XpChip({
+  className,
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
+  const { mounted, snapshot } = useProgress();
+  // Hydration-safe: render nothing until mounted on the client.
+  if (!mounted) return null;
+  return (
+    <Link
+      href="/profile"
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-2 rounded-md border border-claude-orange/40 bg-claude-orange/5 px-2.5 py-1.5 font-mono text-xs text-claude-orange transition-colors hover:bg-claude-orange/10",
+        className
+      )}
+      aria-label="View your profile"
+    >
+      <span>{snapshot.rank.name}</span>
+      <span className="text-claude-muted">·</span>
+      <span>{snapshot.xp.toLocaleString()} XP</span>
+      {snapshot.streak > 0 && (
+        <span className="flex items-center gap-0.5">
+          <Flame className="h-3 w-3" />
+          {snapshot.streak}
+        </span>
+      )}
+    </Link>
+  );
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -62,6 +98,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <XpChip className="hidden lg:flex" />
           <Button asChild variant="outline" size="sm" className="hidden sm:flex">
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
               <Github className="h-4 w-4" />
@@ -86,7 +123,13 @@ export function Navbar() {
                   CCAF Guide
                 </SheetTitle>
               </SheetHeader>
-              <nav className="mt-6 flex flex-col gap-1">
+              <div className="mt-4">
+                <XpChip
+                  className="w-full justify-center"
+                  onClick={() => setOpen(false)}
+                />
+              </div>
+              <nav className="mt-4 flex flex-col gap-1">
                 {NAV_LINKS.map((l) => (
                   <Link
                     key={l.href}

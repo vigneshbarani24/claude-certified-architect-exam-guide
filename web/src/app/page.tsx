@@ -7,6 +7,9 @@ import {
   ListChecks,
   ArrowRight,
   Download,
+  Trophy,
+  Flame,
+  Share2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -43,6 +46,35 @@ const FEATURES = [
     href: "/notebooklm",
     icon: FileText,
   },
+  {
+    title: "Profile & XP",
+    desc: "Earn XP, climb rank tiers, build a streak, and unlock badges as you study.",
+    href: "/profile",
+    icon: Trophy,
+  },
+  {
+    title: "Leaderboard",
+    desc: "Your personal mock-score board, kept on-device. Share a card to challenge friends.",
+    href: "/leaderboard",
+    icon: Share2,
+  },
+];
+
+const RANK_TIERS = [
+  { name: "Apprentice", min: "0 XP" },
+  { name: "Practitioner", min: "300 XP" },
+  { name: "Architect", min: "1,000 XP" },
+  { name: "Master Architect", min: "2,500 XP" },
+];
+
+const BADGE_SHOWCASE = [
+  "First Steps",
+  "Domain Cleared",
+  "Centurion",
+  "Perfect Mock",
+  "Pass",
+  "Streak 7",
+  "Streak 30",
 ];
 
 const STEPS = [
@@ -211,6 +243,110 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+      </section>
+
+      {/* GAMIFIED LOOP */}
+      <section className="pb-20">
+        <div className="rounded-lg border border-border bg-card p-8 sm:p-10">
+          <div className="text-center">
+            <Badge variant="outline" className="mb-4">
+              New
+            </Badge>
+            <h2 className="font-display text-3xl">
+              Track your progress &amp; share your score
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+              Every card, question, and section you complete earns XP. Climb
+              the rank tiers, keep a daily streak alive, unlock badges, and
+              export a branded card to challenge friends. All stored on your
+              device — no account, no server.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {/* Ranks */}
+            <div>
+              <h3 className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-claude-muted">
+                <Trophy className="h-4 w-4 text-claude-orange" />
+                Rank tiers
+              </h3>
+              <div className="space-y-2">
+                {RANK_TIERS.map((r) => (
+                  <div
+                    key={r.name}
+                    className="flex items-center justify-between rounded-md border border-border px-3 py-2"
+                  >
+                    <span className="font-display text-lg">{r.name}</span>
+                    <span className="font-mono text-xs text-claude-orange">
+                      {r.min}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div>
+              <h3 className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-claude-muted">
+                <Flame className="h-4 w-4 text-claude-orange" />
+                Unlockable badges
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {BADGE_SHOWCASE.map((b) => (
+                  <span
+                    key={b}
+                    className="rounded-md border border-claude-orange/40 bg-claude-orange/5 px-3 py-1.5 font-mono text-xs text-claude-orange"
+                  >
+                    {b}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Clear each domain, hit a perfect mock, pass the proxy, and
+                build streaks of 7 and 30 days.
+              </p>
+            </div>
+
+            {/* Share card mockup */}
+            <div>
+              <h3 className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-claude-muted">
+                <Share2 className="h-4 w-4 text-claude-orange" />
+                Shareable card
+              </h3>
+              <div className="rounded-lg border border-border bg-[#0a0a0a] p-5">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-claude-orange">
+                  CCAF · Claude Certified Architect
+                </p>
+                <p className="mt-2 font-display text-2xl">My Study Rank</p>
+                <p className="font-display text-3xl text-claude-orange">
+                  Architect
+                </p>
+                <p className="mt-2 font-mono text-xs text-foreground">
+                  1,240 XP · 12-day streak
+                </p>
+                <p className="mt-4 font-mono text-[10px] text-claude-muted">
+                  github.com/vigneshbarani24
+                </p>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Generated client-side with Canvas — download a PNG or share
+                straight to X / LinkedIn.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild>
+              <Link href="/profile">
+                View your profile
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/leaderboard">Personal leaderboard</Link>
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* GITHUB CTA */}

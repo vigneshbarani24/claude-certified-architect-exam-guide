@@ -39,6 +39,8 @@ export default function MockExamPage() {
     );
   };
 
+  const [scenarioLabel, setScenarioLabel] = useState("All scenarios");
+
   const startExam = (mode: "selected" | "random4" | "all") => {
     let scenarios: string[];
     if (mode === "all") scenarios = allScenarios;
@@ -52,6 +54,15 @@ export default function MockExamPage() {
       mode === "all"
         ? getAllQuestions()
         : filterByScenarios(scenarios);
+    setScenarioLabel(
+      mode === "all"
+        ? "All 6 scenarios"
+        : mode === "random4"
+          ? "4 random scenarios"
+          : scenarios.length === 1
+            ? scenarios[0]
+            : `${scenarios.length} scenarios`
+    );
     setDeck(shuffle(pool));
     setIndex(0);
     setAnswers({});
@@ -209,6 +220,7 @@ export default function MockExamPage() {
           correct={correct}
           total={deck.length}
           domainStats={domainStats}
+          scenario={scenarioLabel}
           onRetry={reset}
         />
       )}
