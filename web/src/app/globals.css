@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Raw Claude palette (hex) */
+    --claude-orange: #d97757;
+    --claude-orange-hover: #c96a47;
+    --claude-cream: #f5f0e8;
+    --claude-surface: #141414;
+    --claude-border: #232323;
+    --claude-muted: #666666;
+
+    /* shadcn HSL tokens mapped from the Claude dark palette */
+    --background: 0 0% 4%; /* #0a0a0a */
+    --foreground: 0 0% 98%; /* #fafafa */
+
+    --card: 0 0% 7%; /* #111111 */
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 16 62% 59%; /* #d97757 */
+    --primary-foreground: 0 0% 4%; /* #0a0a0a */
+
+    --secondary: 0 0% 10%; /* #1a1a1a */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 40%; /* #666666 */
+
+    --accent: 16 62% 59%; /* #d97757 */
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 84% 60%; /* #ef4444 */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14%; /* #232323 */
+    --input: 0 0% 14%;
+    --ring: 16 62% 59%; /* #d97757 */
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+  }
+  ::selection {
+    background-color: var(--claude-orange);
+    color: #0a0a0a;
+  }
+}
+
+/* ---- FlashCard 3D flip ---- */
+.card-scene {
+  perspective: 1600px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* ---- Guide / markdown prose ---- */
+.guide-prose {
+  color: hsl(var(--foreground));
+  line-height: 1.75;
+}
+.guide-prose h1,
+.guide-prose h2,
+.guide-prose h3,
+.guide-prose h4 {
+  font-family: var(--font-display), Georgia, serif;
+  color: hsl(var(--foreground));
+  scroll-margin-top: 6rem;
+  font-weight: 600;
+}
+.guide-prose h1 {
+  font-size: 2.25rem;
+  margin: 1.5rem 0 1rem;
+}
+.guide-prose h2 {
+  font-size: 1.75rem;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--claude-border);
+}
+.guide-prose h3 {
+  font-size: 1.35rem;
+  margin: 2rem 0 0.75rem;
+}
+.guide-prose p,
+.guide-prose li {
+  font-size: 1rem;
+}
+.guide-prose p {
+  margin: 1rem 0;
+}
+.guide-prose ul,
+.guide-prose ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+.guide-prose ul {
+  list-style: disc;
+}
+.guide-prose ol {
+  list-style: decimal;
+}
+.guide-prose li {
+  margin: 0.4rem 0;
+}
+.guide-prose a {
+  color: var(--claude-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.guide-prose strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+.guide-prose code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: hsl(var(--secondary));
+  border: 1px solid var(--claude-border);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+.guide-prose pre {
+  background: #0c0c0c !important;
+  border: 1px solid var(--claude-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+  font-size: 0.85rem;
+}
+.guide-prose pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.guide-prose blockquote {
+  border-left: 3px solid var(--claude-orange);
+  padding-left: 1rem;
+  margin: 1.25rem 0;
+  color: hsl(var(--muted-foreground));
+}
+.guide-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+.guide-prose th,
+.guide-prose td {
+  border: 1px solid var(--claude-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.guide-prose th {
+  background: hsl(var(--secondary));
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "q1",
+    "scenario": "Customer Support Resolution Agent",
+    "domain": 1,
+    "stem": "Your support agent calls the Messages API with tools defined. The response has stop_reason \"tool_use\" and a tool_use block requesting lookup_order. What must the client do next to continue the agent loop correctly?",
+    "options": [
+      { "label": "A", "text": "Send a new user message containing a tool_result block whose tool_use_id matches the tool_use block, then call the API again" },
+      { "label": "B", "text": "Re-send the same request unchanged until stop_reason becomes \"end_turn\"" },
+      { "label": "C", "text": "Append an assistant message with the tool output and call the API again" },
+      { "label": "D", "text": "Set tool_choice to \"none\" and resend so Claude stops asking for tools" }
+    ],
+    "correct": "A",
+    "explanation": "Tool results are returned to Claude as a user-role message containing a tool_result content block whose tool_use_id matches the requested tool_use. The loop continues until stop_reason is \"end_turn\". Tool output is never an assistant message, and resending unchanged just repeats the request.",
+    "tags": ["agent-loop", "tool-use", "stop_reason"]
+  },
+  {
+    "id": "q2",
+    "scenario": "Customer Support Resolution Agent",
+    "domain": 2,
+    "stem": "The agent sometimes answers from memory instead of calling the account-status tool, occasionally giving stale info. You want it to always consult a tool before responding on account questions. Which change most directly enforces that?",
+    "options": [
+      { "label": "A", "text": "Set tool_choice to \"any\" so the model must call some tool before producing a final answer" },
+      { "label": "B", "text": "Lower temperature to 0" },
+      { "label": "C", "text": "Remove the tool definitions so Claude cannot guess" },
+      { "label": "D", "text": "Set tool_choice to {\"type\":\"none\"}" }
+    ],
+    "correct": "A",
+    "explanation": "tool_choice \"any\" forces Claude to invoke a tool rather than reply directly, ensuring a lookup happens. \"none\" forbids tools (opposite effect); removing tools breaks the lookup entirely; temperature does not control tool invocation.",
+    "tags": ["tool_choice", "reliability"]
+  },
+  {
+    "id": "q3",
+    "scenario": "Code Generation with Claude Code",
+    "domain": 3,
+    "stem": "A team wants a reusable /refactor command available to everyone who clones the repo, accepting the target file as an argument. What is the correct setup?",
+    "options": [
+      { "label": "A", "text": "Create .claude/commands/refactor.md in the repo, write the prompt body, and reference $ARGUMENTS for the file path" },
+      { "label": "B", "text": "Add a refactor key to package.json scripts" },
+      { "label": "C", "text": "Put the prompt in ~/.claude/commands/refactor.md so it is personal-only" },
+      { "label": "D", "text": "Define it as an MCP tool named refactor" }
+    ],
+    "correct": "A",
+    "explanation": "Project slash commands are markdown files in the committed .claude/commands/ directory; the filename becomes the command name and $ARGUMENTS injects user input. ~/.claude/commands is personal (not shared via the repo). npm scripts and MCP tools are different mechanisms.",
+    "tags": ["claude-code", "slash-commands"]
+  },
+  {
+    "id": "q4",
+    "scenario": "Multi-Agent Research System",
+    "domain": 1,
+    "stem": "A lead agent dispatches several research subagents in parallel. The orchestrator's context keeps overflowing as subagents return long transcripts. What is the best architectural fix?",
+    "options": [
+      { "label": "A", "text": "Have each subagent return only a concise synthesized summary with citations, not its full working transcript" },
+      { "label": "B", "text": "Increase max_tokens on the orchestrator request" },
+      { "label": "C", "text": "Run all research in the single orchestrator agent instead" },
+      { "label": "D", "text": "Disable tool use in subagents" }
+    ],
+    "correct": "A",
+    "explanation": "The orchestrator-worker pattern's benefit is context isolation: subagents do the heavy lifting in their own windows and return condensed results. Returning full transcripts defeats that. Collapsing back to one agent or raising max_tokens does not solve context bloat.",
+    "tags": ["orchestration", "context-management", "subagents"]
+  },
+  {
+    "id": "q5",
+    "scenario": "Developer Productivity with Claude",
+    "domain": 4,
+    "stem": "You need Claude to return a changelog as JSON with fixed fields for an automated release pipeline. Which approach gives the most reliable schema-conformant output?",
+    "options": [
+      { "label": "A", "text": "Define a tool whose input_schema is the changelog JSON Schema and force it via tool_choice {\"type\":\"tool\",\"name\":...}" },
+      { "label": "B", "text": "Ask in the prompt for JSON and hope formatting is consistent" },
+      { "label": "C", "text": "Raise temperature so outputs vary less" },
+      { "label": "D", "text": "Use the Message Batches API" }
+    ],
+    "correct": "A",
+    "explanation": "Forcing a tool call with a JSON Schema makes the model emit schema-validated structured input, the most reliable structured-output technique. Free-text JSON requests are brittle; temperature does not enforce structure; Batches affects cost/latency, not schema conformance.",
+    "tags": ["structured-output", "tools", "json-schema"]
+  },
+  {
+    "id": "q6",
+    "scenario": "Claude Code for Continuous Integration",
+    "domain": 3,
+    "stem": "You want Claude Code to triage failing tests inside a CI job and emit machine-readable results without any interactive prompts, while preventing destructive shell actions. Which configuration is appropriate?",
+    "options": [
+      { "label": "A", "text": "Run claude -p with --output-format json and restrict capability with allowed-tools / permission settings" },
+      { "label": "B", "text": "Run claude in interactive mode and pipe \"yes\" to confirm prompts" },
+      { "label": "C", "text": "Grant full permissions and parse the human-readable terminal output with regex" },
+      { "label": "D", "text": "Use the Messages API directly because Claude Code cannot run in CI" }
+    ],
+    "correct": "A",
+    "explanation": "Headless mode (claude -p) with a JSON output format is the supported non-interactive path; tool allow-listing/permission modes constrain side effects so automation is safe. Interactive mode and unrestricted permissions are unsafe and fragile in CI; Claude Code does support headless CI use.",
+    "tags": ["claude-code", "ci", "headless", "permissions"]
+  },
+  {
+    "id": "q7",
+    "scenario": "Structured Data Extraction",
+    "domain": 5,
+    "stem": "You must extract structured fields from 200,000 archived PDFs. Latency is not important but cost is. Which API choice best fits?",
+    "options": [
+      { "label": "A", "text": "The Message Batches API, which processes large batches asynchronously at about 50% lower cost with results typically within 24 hours" },
+      { "label": "B", "text": "Standard synchronous Messages API calls in a tight loop for fastest turnaround" },
+      { "label": "C", "text": "Streaming responses to reduce token cost" },
+      { "label": "D", "text": "The Files API, because it makes extraction free" }
+    ],
+    "correct": "A",
+    "explanation": "The Message Batches API is purpose-built for high-volume, latency-tolerant work: roughly 50% cheaper than standard requests with results generally available within 24 hours. Streaming does not lower token cost; the Files API stores inputs but does not change pricing.",
+    "tags": ["batches-api", "cost", "scale"]
+  },
+  {
+    "id": "q8",
+    "scenario": "Structured Data Extraction",
+    "domain": 5,
+    "stem": "Across thousands of extractions, a small fraction of responses are not valid against your JSON Schema. What is the most robust production handling?",
+    "options": [
+      { "label": "A", "text": "Validate every result against the schema and, on failure, retry the request (optionally with a corrective message) before surfacing an error" },
+      { "label": "B", "text": "Assume forced tool calls are always schema-valid and skip validation" },
+      { "label": "C", "text": "Lower max_tokens so responses are shorter and cannot be malformed" },
+      { "label": "D", "text": "Switch to free-text output and parse heuristically" }
+    ],
+    "correct": "A",
+    "explanation": "Even with forced tool calls, you should validate outputs and implement retry/repair for the small failure tail; reliability comes from validation plus retry, not from assuming perfection. Shorter responses and heuristic free-text parsing increase, not decrease, failure risk.",
+    "tags": ["reliability", "validation", "structured-output"]
+  }
+]

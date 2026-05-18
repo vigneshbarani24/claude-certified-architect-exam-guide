@@ -1,0 +1,67 @@
+// Prebuild: copy NotebookLM markdown bundles and real flashcard data into the
+// web app if they exist in the monorepo. All steps degrade gracefully when
+// source files are missing so `npm run build` always succeeds.
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const webRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(webRoot, "..");
+
+async function exists(p) {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function copyNotebookBundles() {
+  const src = path.join(repoRoot, "notebooklm");
+  const dest = path.join(webRoot, "public", "notebooklm");
+  if (!(await exists(src))) {
+    console.log("[copy-bundles] notebooklm/ not found — skipping bundle copy.");
+    return;
+  }
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src);
+  const mds = entries.filter(
+    (f) =>
+      f.toLowerCase().endsWith(".md") &&
+      f.toLowerCase() !== "readme.md"
+  );
+  if (mds.length === 0) {
+    console.log("[copy-bundles] no .md bundles in notebooklm/ — skipping.");
+    return;
+  }
+  for (const f of mds) {
+    await fs.copyFile(path.join(src, f), path.join(dest, f));
+  }
+  console.log(`[copy-bundles] copied ${mds.length} NotebookLM bundle(s).`);
+}
+
+async function copyFlashcardData() {
+  const src = path.join(repoRoot, "flashcards", "all-domains.json");
+  const dest = path.join(webRoot, "src", "data", "flashcards.json");
+  if (!(await exists(src))) {
+    console.log(
+      "[copy-bundles] flashcards/all-domains.json not found — keeping placeholder data."
+    );
+    return;
+  }
+  try {
+    const text = await fs.readFile(src, "utf8");
+    JSON.parse(text); // validate before overwriting
+    await fs.copyFile(src, dest);
+    console.log("[copy-bundles] copied real flashcards/all-domains.json.");
+  } catch (err) {
+    console.log(
+      `[copy-bundles] all-domains.json invalid JSON — keeping placeholder. (${err.message})`
+    );
+  }
+}
+
+await copyNotebookBundles();
+await copyFlashcardData();

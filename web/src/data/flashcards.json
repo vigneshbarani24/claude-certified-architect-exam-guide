@@ -1,0 +1,3006 @@
+[
+  {
+    "id": "d1-001",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What loop do agentic applications run?",
+    "back": "They run an observe-reason-act-observe loop: the model sees current context, chooses a tool or response, incorporates results, and continues until the task is done or blocked.",
+    "difficulty": "easy",
+    "tags": [
+      "agentic-loop",
+      "observe-act"
+    ]
+  },
+  {
+    "id": "d1-002",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Which agentic pattern fits a fixed three-stage code review (style, then security, then documentation)?",
+    "back": "Prompt chaining, because the steps are known and fixed; chaining adds reliability by constraining the model to a known sequence.",
+    "difficulty": "easy",
+    "tags": [
+      "prompt-chaining",
+      "patterns"
+    ]
+  },
+  {
+    "id": "d1-003",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Which pattern fits routing invoices, receipts, and contracts to different extraction tools?",
+    "back": "Routing: inputs fall into distinct handling categories, so you classify then dispatch to the right handler.",
+    "difficulty": "easy",
+    "tags": [
+      "routing",
+      "patterns"
+    ]
+  },
+  {
+    "id": "d1-004",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Which pattern fits debugging an intermittent backend failure where each finding changes the plan?",
+    "back": "Dynamic decomposition, because the next step genuinely depends on what the model just learned; a fixed checklist would miss the actual cause.",
+    "difficulty": "medium",
+    "tags": [
+      "dynamic-decomposition",
+      "investigation"
+    ]
+  },
+  {
+    "id": "d1-005",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Which pattern fits a research coordinator that decides which specialist subagents to invoke?",
+    "back": "Orchestrator-workers: a coordinator chooses and delegates subtasks rather than following a fixed chain.",
+    "difficulty": "easy",
+    "tags": [
+      "orchestrator-workers",
+      "patterns"
+    ]
+  },
+  {
+    "id": "d1-006",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "When should you avoid the parallel-subagents pattern?",
+    "back": "When workstreams depend on each other's results, when the partition would split a logical unit, or when sequential streaming output matters more than throughput.",
+    "difficulty": "medium",
+    "tags": [
+      "parallel-subagents",
+      "dependencies"
+    ]
+  },
+  {
+    "id": "d1-007",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "A billing-dispute workflow always runs verify identity, fetch invoice, check policy, propose adjustment. Chaining or dynamic decomposition?",
+    "back": "Prompt chaining: the steps are genuinely fixed, so chaining gives reliability and consistent outputs; dynamic decomposition would invite unnecessary tool calls.",
+    "difficulty": "medium",
+    "tags": [
+      "prompt-chaining",
+      "customer-service"
+    ]
+  },
+  {
+    "id": "d1-008",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "A security incident triage must decide whether to pull logs, query a SIEM, page on-call, or all three. Which pattern?",
+    "back": "Dynamic decomposition: the next move only becomes clear after the current finding, so a fixed chain would produce shallow analyses.",
+    "difficulty": "medium",
+    "tags": [
+      "dynamic-decomposition",
+      "triage"
+    ]
+  },
+  {
+    "id": "d1-009",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why is the choice of agentic pattern framed as matching the shape of work rather than picking the best pattern?",
+    "back": "Each pattern trades reliability against adaptability; chaining suits fixed steps while decomposition suits exploratory work, so the right one depends on the task structure.",
+    "difficulty": "hard",
+    "tags": [
+      "patterns",
+      "design-tradeoff"
+    ]
+  },
+  {
+    "id": "d1-010",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "The user asks the coordinator to summarize three sentences it just retrieved. Delegate to a subagent or answer directly?",
+    "back": "Answer directly: delegation adds a tool call, fresh context, separate invocation, and result passing; that overhead is wasteful when the coordinator already has the context and the work is small.",
+    "difficulty": "medium",
+    "tags": [
+      "delegation",
+      "overhead"
+    ]
+  },
+  {
+    "id": "d1-011",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Name three cases where delegating to a subagent is worthwhile despite its overhead.",
+    "back": "When the task would flood the coordinator's context, when it needs a different prompt or tool set (specialist persona), or when it can run in parallel with other work.",
+    "difficulty": "easy",
+    "tags": [
+      "delegation",
+      "subagents"
+    ]
+  },
+  {
+    "id": "d1-012",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What is the partition-then-parallel pattern for auditing 50 repositories?",
+    "back": "The coordinator divides the input into N roughly equal chunks, spawns N subagents (one per chunk), and synthesizes their uniform structured outputs.",
+    "difficulty": "medium",
+    "tags": [
+      "partition-parallel",
+      "subagents"
+    ]
+  },
+  {
+    "id": "d1-013",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "In partition-then-parallel work, why balance partitions by expected effort, not raw count?",
+    "back": "Total elapsed time becomes max(subagent_durations); if a few partitions are far heavier, the slowest one dictates total time and the parallelism is wasted.",
+    "difficulty": "hard",
+    "tags": [
+      "parallel-execution",
+      "load-balancing"
+    ]
+  },
+  {
+    "id": "d1-014",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Does a subagent automatically share the parent agent's conversation state?",
+    "back": "No. A subagent starts a fresh conversation and sees only what the parent explicitly passes plus its own AgentDefinition; it does not see prior user turns, assistant turns, or tool results.",
+    "difficulty": "easy",
+    "tags": [
+      "subagent-context",
+      "isolation"
+    ]
+  },
+  {
+    "id": "d1-015",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Since subagents do not inherit context, what must the parent put in the subagent prompt?",
+    "back": "Everything the subagent needs: the goal, relevant findings, constraints, source references, and the expected output shape.",
+    "difficulty": "medium",
+    "tags": [
+      "subagent-context",
+      "handoff"
+    ]
+  },
+  {
+    "id": "d1-016",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why doesn't a \"resume the previous research subagent\" pattern exist by default?",
+    "back": "Calling the Agent/Task tool again starts a brand-new agent; for continuity the parent must persist an identifier or include the prior summary in the new prompt.",
+    "difficulty": "medium",
+    "tags": [
+      "subagent-context",
+      "state"
+    ]
+  },
+  {
+    "id": "d1-017",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Critique the subagent handoff \"Synthesize the findings.\"",
+    "back": "It is too vague; a good handoff specifies the records, requires preserving uncertainty, citing each claim with its source_id, and separating established from contested findings.",
+    "difficulty": "medium",
+    "tags": [
+      "handoff",
+      "provenance"
+    ]
+  },
+  {
+    "id": "d1-018",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "For final report generation requiring citations, what should the coordinator pass to the report subagent?",
+    "back": "A structured source index mapping claims to source IDs, URLs, excerpts, dates, and confidence/uncertainty notes - not only a prose summary.",
+    "difficulty": "medium",
+    "tags": [
+      "report-generation",
+      "provenance"
+    ]
+  },
+  {
+    "id": "d1-019",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why shouldn't every subagent inherit every tool?",
+    "back": "More tools increase selection complexity and can lead agents outside their role; restricting tools to what each subagent needs improves focus and security.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-distribution",
+      "subagents"
+    ]
+  },
+  {
+    "id": "d1-020",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What tools does a synthesis subagent that should only work from supplied findings need?",
+    "back": "Generally no external search tools; it should work only from the findings the coordinator passes so it does not introduce unsourced content.",
+    "difficulty": "medium",
+    "tags": [
+      "tool-distribution",
+      "synthesis"
+    ]
+  },
+  {
+    "id": "d1-021",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "In the Claude Agent SDK, what must be in the parent's allowedTools for it to spawn subagents?",
+    "back": "The delegation tool itself (typically named Task or Agent); without it the parent has no callable interface to launch the subagent definitions.",
+    "difficulty": "medium",
+    "tags": [
+      "agent-sdk",
+      "delegation"
+    ]
+  },
+  {
+    "id": "d1-022",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "An orchestrator describes delegation but no subagent ever runs. What is the most likely cause?",
+    "back": "The Task/Agent tool is not in the parent's allowedTools, so the parent has no interface to launch subagents even though the definitions exist.",
+    "difficulty": "hard",
+    "tags": [
+      "agent-sdk",
+      "delegation",
+      "debugging"
+    ]
+  },
+  {
+    "id": "d1-023",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "When should a coordinator start independent tasks concurrently?",
+    "back": "When the tasks do not depend on each other's output; parallel execution turns elapsed time into max(durations) instead of sum, especially for I/O-bound work.",
+    "difficulty": "medium",
+    "tags": [
+      "parallel-execution",
+      "latency"
+    ]
+  },
+  {
+    "id": "d1-024",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "When must you NOT parallelize two tasks?",
+    "back": "When the second task needs the first task's output - e.g., document analysis cannot inspect sources until the sources are identified.",
+    "difficulty": "easy",
+    "tags": [
+      "parallel-execution",
+      "dependencies"
+    ]
+  },
+  {
+    "id": "d1-025",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Describe the common three-phase agentic phasing pattern.",
+    "back": "Serial decomposition (one call plans the independent units), then parallel execution (each unit runs concurrently), then serial synthesis (one final call assembles results).",
+    "difficulty": "medium",
+    "tags": [
+      "phasing",
+      "parallel-execution"
+    ]
+  },
+  {
+    "id": "d1-026",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "For which kind of subtasks does the parallel phase win the most latency back?",
+    "back": "I/O-bound subtasks (fetches, searches, document analyses), because elapsed time becomes max(durations); CPU- or token-bound work sees a smaller speedup.",
+    "difficulty": "hard",
+    "tags": [
+      "parallel-execution",
+      "latency"
+    ]
+  },
+  {
+    "id": "d1-027",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why persist structured exports rather than only transcripts for long multi-agent workflows?",
+    "back": "On resume the coordinator can load a manifest and inject only relevant state into each agent prompt, which is more efficient than replaying every subagent transcript.",
+    "difficulty": "medium",
+    "tags": [
+      "state-persistence",
+      "resume"
+    ]
+  },
+  {
+    "id": "d1-028",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What does a workflow state manifest typically contain?",
+    "back": "Workflow id, completed steps, per-document status with claim IDs, and open gaps - durable structured state, not raw conversation.",
+    "difficulty": "easy",
+    "tags": [
+      "state-persistence",
+      "manifest"
+    ]
+  },
+  {
+    "id": "d1-029",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why must research agents preserve publication or data-collection dates with each claim?",
+    "back": "Without dates a synthesis agent may treat older and newer statistics as contradictory when they actually show a trend over time.",
+    "difficulty": "hard",
+    "tags": [
+      "provenance",
+      "dates"
+    ]
+  },
+  {
+    "id": "d1-030",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What should research subagents output per finding for trustworthy synthesis?",
+    "back": "Claim, source ID and location, publication/data date, methodology notes, source confidence language, and whether the finding is established, contested, or insufficiently supported.",
+    "difficulty": "medium",
+    "tags": [
+      "provenance",
+      "uncertainty"
+    ]
+  },
+  {
+    "id": "d1-031",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "When should a customer-service agent escalate to a human?",
+    "back": "When the user explicitly asks and the issue cannot be resolved without overriding them, the issue needs authority the agent lacks, a policy exception or high-value transaction is involved, no meaningful progress is possible, or tool results show an unsafe state needing human judgment.",
+    "difficulty": "medium",
+    "tags": [
+      "escalation",
+      "customer-service"
+    ]
+  },
+  {
+    "id": "d1-032",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why is \"escalate after three failed tool calls\" a poor escalation rule?",
+    "back": "The category and impact of a failure matter more than the count; a simplistic counter ignores whether the failure is recoverable or critical.",
+    "difficulty": "hard",
+    "tags": [
+      "escalation",
+      "heuristics"
+    ]
+  },
+  {
+    "id": "d1-033",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What should an escalation handoff contain?",
+    "back": "A structured handoff: customer ID, issue type, root cause, relevant records, amount, actions taken, and recommended next action - not just the first complaint or a raw transcript dump.",
+    "difficulty": "easy",
+    "tags": [
+      "escalation",
+      "handoff"
+    ]
+  },
+  {
+    "id": "d1-034",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "A frustrated user asks for a human but the issue is straightforward and resolvable. What should the agent do?",
+    "back": "Acknowledge the frustration, offer the immediate resolution while preserving their choice to be transferred, and let them pick - do not silently perform the account action.",
+    "difficulty": "medium",
+    "tags": [
+      "frustrated-users",
+      "escalation"
+    ]
+  },
+  {
+    "id": "d1-035",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Which customer-service rules must be enforced programmatically rather than by prompt?",
+    "back": "Hard rules: refunds above a threshold, reimbursements needing manager approval, regulated financial/healthcare workflows, and destructive infrastructure operations.",
+    "difficulty": "easy",
+    "tags": [
+      "compliance",
+      "enforcement"
+    ]
+  },
+  {
+    "id": "d1-036",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why put a reimbursement threshold rule inside the process_reimbursement tool itself?",
+    "back": "So the model cannot bypass it by choosing the wrong tool or setting an approval flag incorrectly; the tool disburses below the threshold and creates a pending approval above it.",
+    "difficulty": "medium",
+    "tags": [
+      "compliance",
+      "tool-enforcement"
+    ]
+  },
+  {
+    "id": "d1-037",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Where should a credit-limit threshold value come from, and why?",
+    "back": "From a server-controlled source (feature flag, policy service, account record), not a model-passed parameter, so the model cannot raise the cap by setting something like override=true.",
+    "difficulty": "hard",
+    "tags": [
+      "compliance",
+      "threshold-enforcement"
+    ]
+  },
+  {
+    "id": "d1-038",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Describe preview-then-execute with single-use tokens for a high-impact action.",
+    "back": "A preview tool returns a redacted summary plus a short-lived one-time token bound to that payload; the user confirms; the execute tool consumes the token. The model cannot forge or reuse a token with different parameters.",
+    "difficulty": "medium",
+    "tags": [
+      "preview-execute",
+      "safety"
+    ]
+  },
+  {
+    "id": "d1-039",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why re-verify the caller's authority on every tool invocation even when the model behaved correctly?",
+    "back": "Tools live inside the trust boundary and must validate; \"the model already checked policy\" is not a defense against adversarial input or prompt injection.",
+    "difficulty": "medium",
+    "tags": [
+      "authorization",
+      "defense-in-depth"
+    ]
+  },
+  {
+    "id": "d1-040",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What does defense-in-depth mean for customer-service compliance?",
+    "back": "Prompt rules bias the agent, tool implementations enforce the hard rule, and audit logs detect violations - prose rules alone can be pushed past by adversarial users or prompt injection.",
+    "difficulty": "hard",
+    "tags": [
+      "defense-in-depth",
+      "compliance"
+    ]
+  },
+  {
+    "id": "d1-041",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "How should an agent handle a tool failing mid-workflow (graceful degradation)?",
+    "back": "Explain what was verified, state what could not be completed, be transparent about the system issue, and offer next steps like retry, escalation, or notification.",
+    "difficulty": "medium",
+    "tags": [
+      "graceful-degradation",
+      "customer-service"
+    ]
+  },
+  {
+    "id": "d1-042",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why prefer \"here is what is done, here is what is pending\" over a flat success message after partial completion?",
+    "back": "Users tolerate visible incompleteness but not later discovering a supposedly completed action silently rolled back; never claim a side effect that did not finish.",
+    "difficulty": "medium",
+    "tags": [
+      "graceful-degradation",
+      "transparency"
+    ]
+  },
+  {
+    "id": "d1-043",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "When the same tool keeps failing on the same input, what should the agent do?",
+    "back": "Treat it as a signal to switch strategies - try a different tool, ask a clarifying question, or escalate - rather than burning more retries on the same call.",
+    "difficulty": "medium",
+    "tags": [
+      "retry",
+      "strategy-switch"
+    ]
+  },
+  {
+    "id": "d1-044",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why not use a full research pipeline for a simple factual query?",
+    "back": "The coordinator should choose a smaller path for simple queries; running the whole pipeline wastes calls and latency for facts that need no decomposition.",
+    "difficulty": "easy",
+    "tags": [
+      "coordinator",
+      "efficiency"
+    ]
+  },
+  {
+    "id": "d1-045",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "If one-pass research finds gaps, what should the coordinator do?",
+    "back": "Trigger a targeted follow-up search; a strict single-pass design leaves known gaps unanswered.",
+    "difficulty": "medium",
+    "tags": [
+      "coordinator",
+      "iteration"
+    ]
+  },
+  {
+    "id": "d1-046",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why not pass raw 100K-token outputs between every agent in a pipeline?",
+    "back": "It floods context and cost; pass structured summaries plus source indexes so downstream agents get what they need without the bulk.",
+    "difficulty": "medium",
+    "tags": [
+      "context-passing",
+      "efficiency"
+    ]
+  },
+  {
+    "id": "d1-047",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "When should you give subagents goals and quality criteria instead of brittle step-by-step search strings?",
+    "back": "When adaptability matters; over-prescribed steps stop the subagent from adjusting to what it finds, while goals plus criteria let it adapt.",
+    "difficulty": "hard",
+    "tags": [
+      "subagent-design",
+      "autonomy"
+    ]
+  },
+  {
+    "id": "d1-048",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "What is the trade-off of dynamic decomposition versus a fixed chain?",
+    "back": "Dynamic plans adapt to findings but are unpredictable and hard to budget, so you must set explicit termination criteria and step caps.",
+    "difficulty": "hard",
+    "tags": [
+      "dynamic-decomposition",
+      "termination"
+    ]
+  },
+  {
+    "id": "d1-049",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "Why is starting a fixed debugging checklist often the wrong approach for an intermittent failure?",
+    "back": "A pre-written checklist often misses the actual cause and runs every step regardless; the cause only becomes clear after each finding, which is what dynamic decomposition handles.",
+    "difficulty": "hard",
+    "tags": [
+      "dynamic-decomposition",
+      "debugging"
+    ]
+  },
+  {
+    "id": "d1-050",
+    "domain": 1,
+    "domain_name": "Agentic Architecture & Orchestration",
+    "front": "For multi-issue customer sessions across many turns, how can the agent reliably answer \"what happened with my refund?\"",
+    "back": "Track each issue's current status (order ID, amounts, resolution state) in structured state independent of the linear conversation.",
+    "difficulty": "medium",
+    "tags": [
+      "structured-state",
+      "customer-service"
+    ]
+  },
+  {
+    "id": "d2-001",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "From what does an agent select which tool to use?",
+    "back": "From the tools' names, descriptions, parameter schemas, and examples - tool design is prompt design plus API design.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-design",
+      "selection"
+    ]
+  },
+  {
+    "id": "d2-002",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "List the things a good tool description should explain.",
+    "back": "What the tool does, when to use it, when not to use it, required input formats, what the output contains, and important limitations and safety concerns.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-description",
+      "design"
+    ]
+  },
+  {
+    "id": "d2-003",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "When are input_examples especially helpful in a tool definition?",
+    "back": "For nested objects, date formats, identifiers, and domain-specific enums, where a schema alone is ambiguous.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-examples",
+      "schema"
+    ]
+  },
+  {
+    "id": "d2-004",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why use an enum instead of a free-text string for a closed set like a repository source?",
+    "back": "Enums encode stable closed sets so the model picks a valid option; free text increases ambiguity and invalid values.",
+    "difficulty": "easy",
+    "tags": [
+      "enum",
+      "parameter-design"
+    ]
+  },
+  {
+    "id": "d2-005",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Describe the lookup-then-act pattern for ambiguous entity names.",
+    "back": "First a search tool returns IDs and distinguishing metadata; then the action tool operates only on an unambiguous ID, so the model never acts on a guessed name.",
+    "difficulty": "easy",
+    "tags": [
+      "lookup-then-act",
+      "disambiguation"
+    ]
+  },
+  {
+    "id": "d2-006",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "A project lookup returns several candidates the agent cannot confidently choose between before a destructive op. Best design?",
+    "back": "Present the candidates to the user with differentiating fields and let them select one; a single-click confirmation beats asking the model to guess and run a destructive operation.",
+    "difficulty": "medium",
+    "tags": [
+      "disambiguation",
+      "safety"
+    ]
+  },
+  {
+    "id": "d2-007",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "How does disambiguation differ from preview-then-execute?",
+    "back": "Disambiguation resolves which entity the user means; preview-then-execute confirms what action will happen to it - they are complementary, not substitutes.",
+    "difficulty": "hard",
+    "tags": [
+      "disambiguation",
+      "preview-execute"
+    ]
+  },
+  {
+    "id": "d2-008",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "If the user already has a device_id, why should a downstream tool accept device_id directly?",
+    "back": "Prefer stable identifiers over derived intermediate values; making the tool resolve mechanical dependencies internally avoids an unnecessary lookup and its failure coupling.",
+    "difficulty": "medium",
+    "tags": [
+      "stable-ids",
+      "composition"
+    ]
+  },
+  {
+    "id": "d2-009",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why split a single log_workout(type,value,unit) tool into log_cardio_session and log_strength_session?",
+    "back": "When parameters have interdependent constraints, separate tools make the schema itself encode the distinction and prevent invalid combinations.",
+    "difficulty": "medium",
+    "tags": [
+      "tool-splitting",
+      "schema"
+    ]
+  },
+  {
+    "id": "d2-010",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why replace a unified manage_order(action,...) tool with separate operation tools?",
+    "back": "When operations have different required fields, a unified tool causes omitted parameters and irrelevant fields; separate tools give a simpler choice and cleaner schema.",
+    "difficulty": "medium",
+    "tags": [
+      "tool-splitting",
+      "parameter-design"
+    ]
+  },
+  {
+    "id": "d2-011",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "What makes a tool output good for the next decision?",
+    "back": "It is structured, compact, and includes identifiers downstream tools can use - not human-readable prose alone.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-output",
+      "chaining"
+    ]
+  },
+  {
+    "id": "d2-012",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Three carriers represent shipment status differently. What should the tool return?",
+    "back": "A normalized consistent schema (e.g., status, estimated_delivery, delay_reason, requires_action) rather than forcing the model to learn carrier-specific code mappings.",
+    "difficulty": "medium",
+    "tags": [
+      "normalization",
+      "tool-output"
+    ]
+  },
+  {
+    "id": "d2-013",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Should \"no matches found\" be returned as an isError result?",
+    "back": "No. It is a successful result with an empty results array; marking it an error makes the agent retry a valid query as though the tool failed.",
+    "difficulty": "medium",
+    "tags": [
+      "empty-result",
+      "error-design"
+    ]
+  },
+  {
+    "id": "d2-014",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "How should a tool handle a paginated backend API by default?",
+    "back": "Return the first page, a total_count (or estimate), and a cursor/continuation token; do not auto-fetch hundreds of items the user may not need.",
+    "difficulty": "easy",
+    "tags": [
+      "pagination",
+      "tool-output"
+    ]
+  },
+  {
+    "id": "d2-015",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Name three good candidates for combining operations into a composite tool.",
+    "back": "Mechanical sequences needing no intermediate decision, latency-heavy lookups that always co-occur, and atomic operations where separate calls create race conditions.",
+    "difficulty": "medium",
+    "tags": [
+      "tool-composition",
+      "atomicity"
+    ]
+  },
+  {
+    "id": "d2-016",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "When should steps stay separate rather than be combined into a composite tool?",
+    "back": "When the model must inspect intermediate results before deciding; selection, judgment, and editorial choice belong outside composite tools.",
+    "difficulty": "medium",
+    "tags": [
+      "tool-composition",
+      "judgment"
+    ]
+  },
+  {
+    "id": "d2-017",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why combine check-availability and reserve-slot into one atomic find_and_book tool?",
+    "back": "Separate calls risk another user taking the slot between them; an atomic operation prevents that race. A hold_slot tool adds a new race window and an extra step.",
+    "difficulty": "hard",
+    "tags": [
+      "atomicity",
+      "race-condition"
+    ]
+  },
+  {
+    "id": "d2-018",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why should a research workflow NOT combine retrieve-sources and write-conclusion?",
+    "back": "The model needs to inspect the sources and preserve provenance; hiding that decision point inside a composite tool removes required judgment.",
+    "difficulty": "hard",
+    "tags": [
+      "tool-composition",
+      "provenance"
+    ]
+  },
+  {
+    "id": "d2-019",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why does auto-fetching every page of an external API usually hurt?",
+    "back": "It causes long latency for broad queries, wastes tokens when only the first items are needed, and can blow context on very large result sets.",
+    "difficulty": "medium",
+    "tags": [
+      "pagination",
+      "context"
+    ]
+  },
+  {
+    "id": "d2-020",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "What happens to tool selection as the number of similar tools grows past a handful?",
+    "back": "Accuracy drops noticeably; do not expose dozens of similar tools at once by default.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-selection",
+      "scaling"
+    ]
+  },
+  {
+    "id": "d2-021",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Describe progressive availability for a large tool set.",
+    "back": "Start with discovery tools (e.g., search_available_connectors), return a ranked shortlist, then dynamically add the selected matching tools so the agent uses them on later turns.",
+    "difficulty": "medium",
+    "tags": [
+      "progressive-availability",
+      "discovery"
+    ]
+  },
+  {
+    "id": "d2-022",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is a monolithic find_and_execute tool worse than a discovery tool plus separate execution?",
+    "back": "Search-and-execute hides the final decision and can perform the wrong action too early; discovery should narrow choices while the agent or user can still inspect before execution.",
+    "difficulty": "hard",
+    "tags": [
+      "progressive-availability",
+      "safety"
+    ]
+  },
+  {
+    "id": "d2-023",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "How does the Claude Agent SDK support progressive tool availability natively?",
+    "back": "Through tool search and dynamic tool registration; MCP servers can also send list_changed notifications so clients refresh tools without reconnecting.",
+    "difficulty": "medium",
+    "tags": [
+      "agent-sdk",
+      "progressive-availability"
+    ]
+  },
+  {
+    "id": "d2-024",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "When tool outputs include ML confidence scores, what should the tool return besides raw confidence?",
+    "back": "A derived requires_review boolean with review_reasons, calibrated against a labeled validation set, so agent behavior is consistent instead of over-trusting or over-escalating raw scores.",
+    "difficulty": "medium",
+    "tags": [
+      "requires-review",
+      "calibration"
+    ]
+  },
+  {
+    "id": "d2-025",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is \"Ready to post. Confirm?\" with no details an unsafe confirmation prompt?",
+    "back": "The tool must return enough structured detail (cost, target, schedule, irreversible effects, scope) for the user to catch a mistake, even if users usually click yes.",
+    "difficulty": "medium",
+    "tags": [
+      "confirmation",
+      "safety"
+    ]
+  },
+  {
+    "id": "d2-026",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is dry_run: boolean on a single tool insufficient for a must-always-preview destructive action?",
+    "back": "The model can simply call the tool with dry_run=false; use a structural preview-token-execute pattern instead.",
+    "difficulty": "hard",
+    "tags": [
+      "safety",
+      "preview-execute"
+    ]
+  },
+  {
+    "id": "d2-027",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Describe the three-step structural pattern for a mandatory-preview workspace deletion.",
+    "back": "preview_delete_workspace returns impact plus a one-time confirmation token; the user reviews; execute_delete_workspace requires the token and verifies it matches the previewed action.",
+    "difficulty": "medium",
+    "tags": [
+      "preview-execute",
+      "safety"
+    ]
+  },
+  {
+    "id": "d2-028",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Do MCP tool annotations or descriptions enforce security?",
+    "back": "No. Security belongs in code, hooks, permissions, and tool logic; annotations and descriptions are untrusted hints.",
+    "difficulty": "easy",
+    "tags": [
+      "security",
+      "annotations"
+    ]
+  },
+  {
+    "id": "d2-029",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is encoding format hints in parameter names (e.g., date_string_iso_yyyy_mm_dd) a pitfall?",
+    "back": "Format belongs in descriptions and schemas, not names; making everything a free-text string increases ambiguity and invalid combinations.",
+    "difficulty": "medium",
+    "tags": [
+      "parameter-design",
+      "pitfall"
+    ]
+  },
+  {
+    "id": "d2-030",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "List the tool-error categories and the correct handling for each.",
+    "back": "Transient infrastructure: retry in tool with backoff; permanent validation: return structured details to correct or ask; business rule: non-retryable with user explanation; permission: non-retryable with escalation path; uncertain write state: report uncertainty, no auto-retry.",
+    "difficulty": "hard",
+    "tags": [
+      "error-categories",
+      "handling"
+    ]
+  },
+  {
+    "id": "d2-031",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "If a read-only API times out and immediate retries usually succeed, where should retry happen?",
+    "back": "Inside the tool - it should absorb recoverable infrastructure noise; the model does not need to see the first failed network attempt.",
+    "difficulty": "medium",
+    "tags": [
+      "retry",
+      "tool-level"
+    ]
+  },
+  {
+    "id": "d2-032",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why must a payment/notification/order timeout after submission NOT be auto-retried?",
+    "back": "The tool may not know whether the side effect occurred; blind retry causes duplicate charges, messages, or postings. Report uncertain state and require an idempotency key or user decision.",
+    "difficulty": "medium",
+    "tags": [
+      "uncertain-write",
+      "idempotency"
+    ]
+  },
+  {
+    "id": "d2-033",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "How should application-level tool errors be returned in MCP?",
+    "back": "As normal tool results with isError: true, not uncaught exceptions; protocol-level failures use JSON-RPC errors.",
+    "difficulty": "easy",
+    "tags": [
+      "mcp-error",
+      "isError"
+    ]
+  },
+  {
+    "id": "d2-034",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Distinguish MCP protocol errors from tool execution errors.",
+    "back": "Protocol errors mean the request could not be processed at the protocol boundary (unknown tool, malformed JSON-RPC, missing required parameter). Tool execution errors mean the tool ran but the operation failed (404, 503, business rule, permission, rate limit) and use isError: true.",
+    "difficulty": "hard",
+    "tags": [
+      "mcp-error",
+      "tiers"
+    ]
+  },
+  {
+    "id": "d2-035",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "A check_availability(user_email) call omits user_email entirely. Protocol error or isError?",
+    "back": "A JSON-RPC protocol error - the call was not even structurally well-formed against the schema.",
+    "difficulty": "medium",
+    "tags": [
+      "mcp-error",
+      "protocol"
+    ]
+  },
+  {
+    "id": "d2-036",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "The calendar API returns 404 because the user does not exist. Protocol error or isError?",
+    "back": "A tool execution error with isError: true - the tool was invoked correctly; the operation simply failed. A missing record is data, not a protocol failure.",
+    "difficulty": "medium",
+    "tags": [
+      "mcp-error",
+      "isError"
+    ]
+  },
+  {
+    "id": "d2-037",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is putting a missing-required-parameter failure in isError a bug?",
+    "back": "It confuses the agent into retrying with the same bad call; a structural protocol violation should be a JSON-RPC error so the agent does not blindly retry.",
+    "difficulty": "hard",
+    "tags": [
+      "mcp-error",
+      "retry"
+    ]
+  },
+  {
+    "id": "d2-038",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is putting a remote 503 into a JSON-RPC protocol error a bug?",
+    "back": "It prevents the agent from trying again later; a transient upstream failure should be isError: true so the agent can decide to retry, switch tools, or escalate.",
+    "difficulty": "hard",
+    "tags": [
+      "mcp-error",
+      "retry"
+    ]
+  },
+  {
+    "id": "d2-039",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Where should retry logic live when the model needs to change inputs or strategy?",
+    "back": "At the model level - validation errors, syntax errors in user filters, or a wrong identifier require the model to change the request, not a silent tool retry.",
+    "difficulty": "medium",
+    "tags": [
+      "retry",
+      "model-level"
+    ]
+  },
+  {
+    "id": "d2-040",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "A search_catalog tool has 8% transient timeouts and 4% user-filter syntax errors. Correct design?",
+    "back": "Retry the transient errors inside the tool with backoff and surface only the final outcome; surface syntax errors immediately with parameter validation details so the model can correct or ask the user.",
+    "difficulty": "hard",
+    "tags": [
+      "retry",
+      "error-classification"
+    ]
+  },
+  {
+    "id": "d2-041",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why is a retryable: true|false boolean alone weaker than actually retrying transient failures in the tool?",
+    "back": "It still costs a model turn and risks the agent retrying anyway; actually retrying transient failures inside the tool is more reliable.",
+    "difficulty": "medium",
+    "tags": [
+      "retry",
+      "design-tradeoff"
+    ]
+  },
+  {
+    "id": "d2-042",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "For a write timeout of uncertain state, should the result be flagged retry_safe: true?",
+    "back": "No. Mark it an error, communicate that delivery is unknown and may have occurred, and encourage a separate status lookup or user confirmation before acting.",
+    "difficulty": "medium",
+    "tags": [
+      "uncertain-write",
+      "safety"
+    ]
+  },
+  {
+    "id": "d2-043",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "What are MCP's three server-side building blocks and who controls each?",
+    "back": "Tools (model-controlled actions), resources (application-controlled context), and prompts (user/application-controlled reusable templates).",
+    "difficulty": "easy",
+    "tags": [
+      "mcp",
+      "building-blocks"
+    ]
+  },
+  {
+    "id": "d2-044",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Should a database schema or API spec the agent consults before acting be a resource or a tool?",
+    "back": "A resource - it is stable reference material the agent reads like context; dynamic state requiring live computation should be a tool.",
+    "difficulty": "easy",
+    "tags": [
+      "mcp",
+      "resource-vs-tool"
+    ]
+  },
+  {
+    "id": "d2-045",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Why are MCP resources and tools complements rather than alternatives?",
+    "back": "Resources describe what is true and stable; tools describe what actions can be taken. Replacing resources with tools forces a call to learn anything; replacing tools with resources prevents acting at all.",
+    "difficulty": "hard",
+    "tags": [
+      "mcp",
+      "resource-vs-tool"
+    ]
+  },
+  {
+    "id": "d2-046",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "When is exposing data through an MCP server more valuable than a custom in-app tool?",
+    "back": "When the integration should be reusable across multiple clients or applications; a deeply app-specific one-off workflow may be simpler as a custom tool.",
+    "difficulty": "medium",
+    "tags": [
+      "mcp",
+      "reusability"
+    ]
+  },
+  {
+    "id": "d2-047",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Does MCP automatically solve authentication, rate limiting, retries, or caching?",
+    "back": "No - those remain system design responsibilities; MCP is a protocol, not a complete middleware platform.",
+    "difficulty": "easy",
+    "tags": [
+      "mcp",
+      "scope"
+    ]
+  },
+  {
+    "id": "d2-048",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "An agent ignores a specialized MCP tool and uses generic search instead. Most likely fix?",
+    "back": "Improve the MCP tool description: explain when it is preferable to generic alternatives, describe inputs/outputs, add examples, and mention key capabilities - do not remove all competing tools.",
+    "difficulty": "medium",
+    "tags": [
+      "mcp",
+      "tool-description"
+    ]
+  },
+  {
+    "id": "d2-049",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "Name the four standard MCP tool annotation hints.",
+    "back": "readOnlyHint, destructiveHint, idempotentHint, and openWorldHint - hints that help the host build UI affordances but are not a security boundary.",
+    "difficulty": "easy",
+    "tags": [
+      "mcp",
+      "annotations"
+    ]
+  },
+  {
+    "id": "d2-050",
+    "domain": 2,
+    "domain_name": "Tool Design & MCP Integration",
+    "front": "How should a host treat a server advertising readOnlyHint: true on a destructive tool?",
+    "back": "As an untrusted hint: use annotations to choose which prompt to show but never to skip a security check policy requires; base permission decisions on server trust, user policy, tool identity, and real risk.",
+    "difficulty": "hard",
+    "tags": [
+      "mcp",
+      "annotations",
+      "security"
+    ]
+  },
+  {
+    "id": "d3-001",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Which built-in tool searches for text inside files?",
+    "back": "Grep - use it for text/content inside files, not filename search.",
+    "difficulty": "easy",
+    "tags": [
+      "claude-code",
+      "grep"
+    ]
+  },
+  {
+    "id": "d3-002",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Which built-in tool finds files by path or name pattern?",
+    "back": "Glob - use it for filenames and paths, not for finding code references inside files.",
+    "difficulty": "easy",
+    "tags": [
+      "claude-code",
+      "glob"
+    ]
+  },
+  {
+    "id": "d3-003",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Which tool combination is best for a full file replacement?",
+    "back": "Read then Write - read the file first, then write the full replacement.",
+    "difficulty": "easy",
+    "tags": [
+      "claude-code",
+      "write"
+    ]
+  },
+  {
+    "id": "d3-004",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Which tool is best for a targeted unique edit to a file?",
+    "back": "Edit or MultiEdit - for precise targeted changes rather than a full rewrite.",
+    "difficulty": "easy",
+    "tags": [
+      "claude-code",
+      "edit"
+    ]
+  },
+  {
+    "id": "d3-005",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why should you not use filename search to find code references inside files?",
+    "back": "Glob matches paths/names only; finding code references requires Grep, which searches file contents.",
+    "difficulty": "medium",
+    "tags": [
+      "grep",
+      "glob",
+      "tool-selection"
+    ]
+  },
+  {
+    "id": "d3-006",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Describe the recommended codebase exploration workflow.",
+    "back": "Grep for route names/error codes/identifiers, read matching entry files, follow imports to core abstractions, trace one or two execution paths, and summarize in a scratchpad when long.",
+    "difficulty": "medium",
+    "tags": [
+      "exploration",
+      "workflow"
+    ]
+  },
+  {
+    "id": "d3-007",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why not read hundreds of files upfront when exploring a codebase?",
+    "back": "It floods context; map first by searching from entry points and following imports, then read selectively.",
+    "difficulty": "medium",
+    "tags": [
+      "exploration",
+      "context"
+    ]
+  },
+  {
+    "id": "d3-008",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "How should you tell Claude Code to follow existing project patterns?",
+    "back": "Give concrete context using file references like @src/payments/repository.ts or @docs/testing.md rather than vague instructions like \"follow our usual style.\"",
+    "difficulty": "medium",
+    "tags": [
+      "claude-code",
+      "file-references"
+    ]
+  },
+  {
+    "id": "d3-009",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "When should you use direct execution rather than plan mode?",
+    "back": "For small, localized, low-risk changes where the target is clear; plan mode adds overhead for tiny edits.",
+    "difficulty": "easy",
+    "tags": [
+      "plan-mode",
+      "direct-execution"
+    ]
+  },
+  {
+    "id": "d3-010",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Name four situations where plan mode is appropriate.",
+    "back": "Changes spanning many files, architectural choices, migrations or breaking changes, needing stakeholder approval, or wanting read-only exploration before implementation.",
+    "difficulty": "medium",
+    "tags": [
+      "plan-mode",
+      "workflow"
+    ]
+  },
+  {
+    "id": "d3-011",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "How do you start Claude Code in plan mode, and how do you toggle modes interactively?",
+    "back": "Use --permission-mode plan to start in plan mode; Shift+Tab toggles modes in interactive sessions.",
+    "difficulty": "easy",
+    "tags": [
+      "plan-mode",
+      "cli"
+    ]
+  },
+  {
+    "id": "d3-012",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "For an urgent production bug, when should you switch from direct fix to planning?",
+    "back": "Gather evidence first; if the fix is obvious and narrow, implement directly; if the root cause reveals broad architectural impact, switch to planning before a larger change.",
+    "difficulty": "medium",
+    "tags": [
+      "plan-mode",
+      "debugging"
+    ]
+  },
+  {
+    "id": "d3-013",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "How does plan mode differ from extended thinking?",
+    "back": "Plan mode is a workflow-control session mode that gates the transition from thinking to doing for human review; extended thinking is a model capability giving more internal reasoning budget for hard problems. Different problems, can be combined.",
+    "difficulty": "hard",
+    "tags": [
+      "plan-mode",
+      "extended-thinking"
+    ]
+  },
+  {
+    "id": "d3-014",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "The agent jumps straight to edits without surfacing trade-offs. Plan mode or extended thinking?",
+    "back": "Plan mode - it gates doing behind a reviewable plan. Extended thinking would address shallow analysis, not premature action.",
+    "difficulty": "hard",
+    "tags": [
+      "plan-mode",
+      "extended-thinking"
+    ]
+  },
+  {
+    "id": "d3-015",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "The agent gives shallow analyses on a complex problem. Plan mode or extended thinking?",
+    "back": "Extended thinking - it increases reasoning quality on hard problems; plan mode would only gate actions, not deepen reasoning.",
+    "difficulty": "medium",
+    "tags": [
+      "extended-thinking",
+      "reasoning"
+    ]
+  },
+  {
+    "id": "d3-016",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What does the --continue flag do?",
+    "back": "Resumes the most recent conversation in the current directory without prompting - best when the latest in-progress work is definitely the one you want.",
+    "difficulty": "easy",
+    "tags": [
+      "sessions",
+      "continue"
+    ]
+  },
+  {
+    "id": "d3-017",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What does the --resume (-r) flag do?",
+    "back": "Resumes a specific saved session, opening a picker if no identifier is given - best for selecting a specific historical or named session.",
+    "difficulty": "easy",
+    "tags": [
+      "sessions",
+      "resume"
+    ]
+  },
+  {
+    "id": "d3-018",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What does the --session-id flag do?",
+    "back": "Uses (or creates) a session with a specific UUID - best for programmatic workflows that need a stable known identifier.",
+    "difficulty": "easy",
+    "tags": [
+      "sessions",
+      "session-id"
+    ]
+  },
+  {
+    "id": "d3-019",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What does --fork-session do and when is it the right tool?",
+    "back": "Creates a new session branched from an existing transcript; right for exploring an alternative path or evaluating two approaches from the same prior state without contaminating the original.",
+    "difficulty": "medium",
+    "tags": [
+      "sessions",
+      "fork-session"
+    ]
+  },
+  {
+    "id": "d3-020",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why is --continue risky in a directory where you worked on multiple unrelated tasks?",
+    "back": "\"The latest\" can be the wrong session; use a named or specific session when returning to a known investigation.",
+    "difficulty": "medium",
+    "tags": [
+      "sessions",
+      "continue"
+    ]
+  },
+  {
+    "id": "d3-021",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why is --fork-session preferable to resuming the original session twice for comparing two approaches?",
+    "back": "The original stays untouched and each fork is a separate transcript copied at the fork point, so two diverging conversations don't get tangled and tool-call history is preserved.",
+    "difficulty": "hard",
+    "tags": [
+      "sessions",
+      "fork-session"
+    ]
+  },
+  {
+    "id": "d3-022",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Sessions persist conversation history but not what?",
+    "back": "Not filesystem state; for isolated file changes use git branches or worktrees.",
+    "difficulty": "medium",
+    "tags": [
+      "sessions",
+      "worktrees"
+    ]
+  },
+  {
+    "id": "d3-023",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "To compare two alternative implementations cleanly, what two things should you isolate?",
+    "back": "Fork the session so each approach's conversation evolves independently AND use a separate worktree so file changes do not collide; doing only one leaves them tangled.",
+    "difficulty": "hard",
+    "tags": [
+      "sessions",
+      "worktrees"
+    ]
+  },
+  {
+    "id": "d3-024",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why avoid resuming the same session in multiple terminals at once?",
+    "back": "Both processes can append to the same session history, making later resumes confusing.",
+    "difficulty": "easy",
+    "tags": [
+      "sessions",
+      "pitfall"
+    ]
+  },
+  {
+    "id": "d3-025",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "If the codebase changed since the previous session, when resume vs start fresh?",
+    "back": "Resume and name the changed files/functions when most prior context is still useful; start fresh with a summary when the old transcript is likely stale or misleading.",
+    "difficulty": "medium",
+    "tags": [
+      "sessions",
+      "stale-context"
+    ]
+  },
+  {
+    "id": "d3-026",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why might the same session that wrote code be a weak reviewer of it?",
+    "back": "Its context includes the earlier reasoning, so it is less critical of its own choices; use a fresh review context, review subagent, CI review, or a separate session with the diff.",
+    "difficulty": "medium",
+    "tags": [
+      "self-review",
+      "context-isolation"
+    ]
+  },
+  {
+    "id": "d3-027",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What belongs in a scratchpad for a long codebase investigation?",
+    "back": "Important files, data flow, open questions, confirmed assumptions, risk areas, and next steps - durable findings that survive context compaction or a session handoff.",
+    "difficulty": "easy",
+    "tags": [
+      "scratchpad",
+      "investigation"
+    ]
+  },
+  {
+    "id": "d3-028",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What does CLAUDE.md store and when is it loaded?",
+    "back": "Project or user memory (build commands, conventions, architecture notes, testing standards) auto-loaded into Claude Code's context on every turn based on a hierarchy.",
+    "difficulty": "easy",
+    "tags": [
+      "claude-md",
+      "memory"
+    ]
+  },
+  {
+    "id": "d3-029",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Describe the CLAUDE.md memory hierarchy.",
+    "back": "Root CLAUDE.md applies project-wide; subdirectory CLAUDE.md files layer on top for that subtree; a user-level memory file applies across all the user's projects; more specific files refine or override general ones for their area.",
+    "difficulty": "medium",
+    "tags": [
+      "claude-md",
+      "hierarchy"
+    ]
+  },
+  {
+    "id": "d3-030",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What does @path/to/file.md syntax do in CLAUDE.md?",
+    "back": "It imports additional shared content without copy-pasting - the right way to reuse a standards document across multiple CLAUDE.md files.",
+    "difficulty": "easy",
+    "tags": [
+      "claude-md",
+      "imports"
+    ]
+  },
+  {
+    "id": "d3-031",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Team-wide rules vs personal preferences: where does each belong?",
+    "back": "Team-wide rules belong in repo-tracked CLAUDE.md files so all collaborators benefit; personal preferences (commit style, test shortcuts) belong in user-level memory, not shared files.",
+    "difficulty": "medium",
+    "tags": [
+      "claude-md",
+      "scoping"
+    ]
+  },
+  {
+    "id": "d3-032",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Claude inconsistently follows project conventions. What is the first diagnostic step?",
+    "back": "Use /memory to confirm the expected memory file is actually loaded for the current working directory; if it is not loaded, no extra prompting fixes it - the problem is loading scope, not wording.",
+    "difficulty": "medium",
+    "tags": [
+      "memory",
+      "debugging"
+    ]
+  },
+  {
+    "id": "d3-033",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Does Claude Code use a .claude/rules/ folder with per-rule YAML frontmatter for path scoping?",
+    "back": "No. The mechanism is CLAUDE.md files plus @import references; path scoping comes from placing CLAUDE.md at the right directory level, and sharing from @imports. YAML-frontmatter rule files are not the standard model.",
+    "difficulty": "hard",
+    "tags": [
+      "claude-md",
+      "misconception"
+    ]
+  },
+  {
+    "id": "d3-034",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why not put an occasional code-review checklist in global CLAUDE.md?",
+    "back": "Memory files are read every turn, so workflow-specific content costs tokens and dilutes ordinary work; put it in a slash command or review subagent instead.",
+    "difficulty": "medium",
+    "tags": [
+      "claude-md",
+      "slash-commands"
+    ]
+  },
+  {
+    "id": "d3-035",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What are slash commands used for?",
+    "back": "Reusable prompts for explicit workflows developers invoke intentionally (e.g., /review, /release-notes, /migration-plan); project commands are shared with the repo, user commands are personal.",
+    "difficulty": "easy",
+    "tags": [
+      "slash-commands",
+      "workflow"
+    ]
+  },
+  {
+    "id": "d3-036",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What can a PreToolUse hook do?",
+    "back": "Fire before a tool call to deny, allow, ask for approval, defer to normal permission rules, inject additional context, or modify the tool's input - the correct class for must-always-require-approval policies.",
+    "difficulty": "medium",
+    "tags": [
+      "hooks",
+      "pretooluse"
+    ]
+  },
+  {
+    "id": "d3-037",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why is a PreToolUse hook the canonical way to enforce hard rules in Claude Code?",
+    "back": "Hooks run as code in your environment, so the model cannot talk around them - that is exactly why hard rules belong there rather than in prompt instructions.",
+    "difficulty": "medium",
+    "tags": [
+      "hooks",
+      "enforcement"
+    ]
+  },
+  {
+    "id": "d3-038",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What is PostToolUse useful for?",
+    "back": "Logging, formatting, secondary checks, or appending follow-up context after a tool call.",
+    "difficulty": "easy",
+    "tags": [
+      "hooks",
+      "posttooluse"
+    ]
+  },
+  {
+    "id": "d3-039",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What can a UserPromptSubmit hook do?",
+    "back": "Fire when the user submits a prompt to block the submission, modify it, or attach extra context.",
+    "difficulty": "easy",
+    "tags": [
+      "hooks",
+      "userpromptsubmit"
+    ]
+  },
+  {
+    "id": "d3-040",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What is the SessionStart hook useful for?",
+    "back": "Loading project context, setting up environment variables, or running pre-flight checks once when a session begins.",
+    "difficulty": "easy",
+    "tags": [
+      "hooks",
+      "sessionstart"
+    ]
+  },
+  {
+    "id": "d3-041",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why must you treat hook configurations as security-sensitive code?",
+    "back": "Hooks execute shell commands in your environment; a malicious or buggy hook can damage the system or exfiltrate data, so review third-party hooks and avoid secrets in loggable arguments.",
+    "difficulty": "medium",
+    "tags": [
+      "hooks",
+      "security"
+    ]
+  },
+  {
+    "id": "d3-042",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "To block destructive Bash patterns unless approved, prompt instruction or hook?",
+    "back": "A PreToolUse hook/permissions - prompt instructions are not tamper-proof, but hook code cannot be talked around by the model.",
+    "difficulty": "hard",
+    "tags": [
+      "hooks",
+      "enforcement",
+      "bash"
+    ]
+  },
+  {
+    "id": "d3-043",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What characterizes good subagent design in Claude Code?",
+    "back": "A clear single responsibility, a specific description so Claude knows when to use it, limited tools for the role, and an output contract the coordinator can consume.",
+    "difficulty": "medium",
+    "tags": [
+      "subagents",
+      "design"
+    ]
+  },
+  {
+    "id": "d3-044",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Does a Claude Code subagent inherit the parent's conversation or CLAUDE.md automatically?",
+    "back": "No. It receives its AgentDefinition and the prompt the parent constructed; CLAUDE.md is not always loaded into it, so the parent must restate every fact (including conventions) the subagent needs.",
+    "difficulty": "hard",
+    "tags": [
+      "subagents",
+      "context"
+    ]
+  },
+  {
+    "id": "d3-045",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Why doesn't a second invocation of the same subagent continue where the first left off?",
+    "back": "Each call is fresh with no inherited memory; if state must persist the parent persists it (a file or note) and re-supplies the relevant slice each call.",
+    "difficulty": "medium",
+    "tags": [
+      "subagents",
+      "state"
+    ]
+  },
+  {
+    "id": "d3-046",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "What is the most effective kind of feedback for iterating with Claude on code?",
+    "back": "Concrete, executable feedback: a specific failing input, the expected and actual output, a validation error, or the failing test name and assertion - not \"handle edge cases better.\"",
+    "difficulty": "medium",
+    "tags": [
+      "iteration",
+      "feedback"
+    ]
+  },
+  {
+    "id": "d3-047",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "Describe the effective coding iteration loop.",
+    "back": "Define behavior with tests/examples, ask for the smallest useful implementation, run tests, feed back exact failures, and iterate one failure class at a time.",
+    "difficulty": "easy",
+    "tags": [
+      "iteration",
+      "testing"
+    ]
+  },
+  {
+    "id": "d3-048",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "When the same defect recurs across runs of the same prompt, retry or structural change?",
+    "back": "A structural change - add a few-shot example, split a tool, or surface a new field; prompt-level fixes generalize while per-instance retries do not.",
+    "difficulty": "hard",
+    "tags": [
+      "iteration",
+      "prompt-design"
+    ]
+  },
+  {
+    "id": "d3-049",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "List signs that generated tests are low value.",
+    "back": "They only assert code does not throw, duplicate existing coverage, ignore project fixtures, test implementation details rather than behavior, or miss important branches and error paths.",
+    "difficulty": "medium",
+    "tags": [
+      "test-generation",
+      "quality"
+    ]
+  },
+  {
+    "id": "d3-050",
+    "domain": 3,
+    "domain_name": "Claude Code Configuration & Workflows",
+    "front": "For reducing false positives in a code-review agent, vague \"be conservative\" or few-shot examples?",
+    "back": "Few-shot examples are more effective - show acceptable code patterns next to genuinely problematic ones; also add fields like detected_pattern or rule_id so dismissals become signal.",
+    "difficulty": "hard",
+    "tags": [
+      "code-review",
+      "few-shot"
+    ]
+  },
+  {
+    "id": "d4-001",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Is Claude's Messages API stateful or stateless?",
+    "back": "Stateless - Claude does not remember previous API calls; the application must send the full current context (system prompt, prior messages, state, retrieved docs, tool results) on each request.",
+    "difficulty": "easy",
+    "tags": [
+      "stateless",
+      "messages-api"
+    ]
+  },
+  {
+    "id": "d4-002",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "An assistant forgets a fact from two turns ago in a short conversation. Most likely cause?",
+    "back": "The application is not sending those prior messages; there is no magic memory flag - the model only sees what the request contains.",
+    "difficulty": "medium",
+    "tags": [
+      "stateless",
+      "context"
+    ]
+  },
+  {
+    "id": "d4-003",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Is treating a session_id as model memory correct?",
+    "back": "No. A session_id can locate stored context in your system but does not change what Claude sees; the model only sees the request contents.",
+    "difficulty": "medium",
+    "tags": [
+      "stateless",
+      "session-id"
+    ]
+  },
+  {
+    "id": "d4-004",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Where does the system prompt go in the Messages API?",
+    "back": "In the top-level system parameter, not a \"system\" role inside messages; user and assistant turns go in messages.",
+    "difficulty": "easy",
+    "tags": [
+      "messages-api",
+      "system-prompt"
+    ]
+  },
+  {
+    "id": "d4-005",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "How is tool use represented in Messages API content blocks?",
+    "back": "Assistant messages can contain tool_use blocks and user messages can contain tool_result blocks.",
+    "difficulty": "easy",
+    "tags": [
+      "messages-api",
+      "tool-use"
+    ]
+  },
+  {
+    "id": "d4-006",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What are the two related ways to get machine-readable output from Claude?",
+    "back": "JSON structured outputs via output_config.format with a JSON Schema, and tool use / strict tool use that constrains tool-call parameters.",
+    "difficulty": "easy",
+    "tags": [
+      "structured-output",
+      "tool-use"
+    ]
+  },
+  {
+    "id": "d4-007",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "When use JSON structured outputs vs tool use for structured output?",
+    "back": "Use JSON structured outputs when the final assistant response itself should be JSON; use tool use when the structured output represents a function call, extraction step, or intermediate agent action.",
+    "difficulty": "easy",
+    "tags": [
+      "structured-output",
+      "tool-use"
+    ]
+  },
+  {
+    "id": "d4-008",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What does tool_choice: auto mean?",
+    "back": "Claude may call a tool or answer normally - suitable for general agents where tool use is optional.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-choice",
+      "auto"
+    ]
+  },
+  {
+    "id": "d4-009",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What does tool_choice: any guarantee?",
+    "back": "Claude must call one of the provided tools - useful for extraction where the document type is unknown but one tool from a set must be used.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-choice",
+      "any"
+    ]
+  },
+  {
+    "id": "d4-010",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What does tool_choice with a specific tool name do?",
+    "back": "Forces Claude to call that specific named tool - e.g., a pipeline stage that must produce one schema before enrichment.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-choice",
+      "tool"
+    ]
+  },
+  {
+    "id": "d4-011",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What does tool_choice: none do?",
+    "back": "Prevents Claude from calling tools - a pure text response or a step where tools are unsafe or unneeded.",
+    "difficulty": "easy",
+    "tags": [
+      "tool-choice",
+      "none"
+    ]
+  },
+  {
+    "id": "d4-012",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is tool_choice: \"any\" better than auto plus a prompt saying \"use a tool\"?",
+    "back": "auto with instructions can still produce conversational text in edge cases; any cannot - it guarantees a tool call without choosing the schema in advance.",
+    "difficulty": "hard",
+    "tags": [
+      "tool-choice",
+      "reliability"
+    ]
+  },
+  {
+    "id": "d4-013",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "To guarantee a specific extraction tool runs first, what is reliable vs unreliable?",
+    "back": "Reliable: tool_choice with that specific tool name for the first call. Unreliable: reordering tool definitions or relying on system-prompt priority.",
+    "difficulty": "hard",
+    "tags": [
+      "tool-choice",
+      "pipeline"
+    ]
+  },
+  {
+    "id": "d4-014",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is schema-backed output more reliable than asking for free-form text that \"looks like JSON\"?",
+    "back": "Schema-backed output is constrained, so it is far less fragile than prompt-only JSON for production pipelines feeding databases, workflow engines, or audits.",
+    "difficulty": "medium",
+    "tags": [
+      "structured-output",
+      "reliability"
+    ]
+  },
+  {
+    "id": "d4-015",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Give the recommended extraction-system pattern using a forced tool.",
+    "back": "Define an extraction tool whose input schema is the desired output, force it with tool_choice, validate the result in code, and on semantic failure re-call Claude with the source, invalid extraction, and exact validation errors.",
+    "difficulty": "medium",
+    "tags": [
+      "extraction",
+      "validation-loop"
+    ]
+  },
+  {
+    "id": "d4-016",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why can a large tool definition plus a long document degrade accuracy near the document's end?",
+    "back": "Tool definitions, schemas, and tool-use/result blocks count as input tokens; total context consumption can approach the effective attention boundary, degrading content near the end - not a model defect.",
+    "difficulty": "hard",
+    "tags": [
+      "context",
+      "token-cost"
+    ]
+  },
+  {
+    "id": "d4-017",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Name operational implications of JSON structured outputs.",
+    "back": "First request for a schema may have extra latency while the grammar compiles; schemas are cached; very complex schemas can exceed compilation limits; refusals or max-token stops can still produce nonconforming output.",
+    "difficulty": "medium",
+    "tags": [
+      "structured-output",
+      "operations"
+    ]
+  },
+  {
+    "id": "d4-018",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What is partial assistant prefill useful for, and what is the caveat?",
+    "back": "Controlling response format (e.g., starting with { or a neutral opener) by continuing a partially filled assistant message; caveat: schema-constrained tool use is usually better for machine-readable output.",
+    "difficulty": "medium",
+    "tags": [
+      "prefill",
+      "format-control"
+    ]
+  },
+  {
+    "id": "d4-019",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why do cost and latency rise in long conversations?",
+    "back": "Each turn includes the entire history, so input token count rises every message and latency rises proportionally - almost always input token growth, not a model or database defect.",
+    "difficulty": "medium",
+    "tags": [
+      "token-growth",
+      "latency"
+    ]
+  },
+  {
+    "id": "d4-020",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Does a JSON Schema prove the source supported the extracted value?",
+    "back": "No. A schema can verify attendee_count is an integer but not that the article actually stated an attendee count - schema compliance is not source truth.",
+    "difficulty": "medium",
+    "tags": [
+      "schema",
+      "provenance"
+    ]
+  },
+  {
+    "id": "d4-021",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why use optional or nullable fields for information that may be absent?",
+    "back": "A required field with no source support structurally pressures the model to fabricate; teach it to return null, an empty array, or an explicit absence reason.",
+    "difficulty": "medium",
+    "tags": [
+      "schema",
+      "fabrication"
+    ]
+  },
+  {
+    "id": "d4-022",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "How should you handle an ambiguous classification in a schema?",
+    "back": "Add an enum value like unclear (or other with a detail field) so the model has a correct option instead of being forced to pick.",
+    "difficulty": "medium",
+    "tags": [
+      "schema",
+      "enum"
+    ]
+  },
+  {
+    "id": "d4-023",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is a strict enum without an escape hatch fragile in an evolving domain?",
+    "back": "New categories keep appearing and cause validation failures; add an other value plus a paired *_detail string for the source's actual wording.",
+    "difficulty": "medium",
+    "tags": [
+      "enum",
+      "schema-evolution"
+    ]
+  },
+  {
+    "id": "d4-024",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Give instruction phrasings that reduce fabrication in extraction.",
+    "back": "\"Extract only values stated in the source,\" \"use null when not provided,\" \"do not infer missing values from typical examples,\" \"preserve informal measurements verbatim when no precise value is given.\"",
+    "difficulty": "easy",
+    "tags": [
+      "fabrication",
+      "instructions"
+    ]
+  },
+  {
+    "id": "d4-025",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is a second \"verify\" LLM call generally inferior to fixing the schema for fabrication?",
+    "back": "Verification adds cost and latency, can itself hallucinate or rationalize, and does not address the root cause - allowing null lets the first call signal absence directly, which is cheaper and more honest.",
+    "difficulty": "hard",
+    "tags": [
+      "fabrication",
+      "schema"
+    ]
+  },
+  {
+    "id": "d4-026",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Distinguish null from an empty array in extraction semantics.",
+    "back": "An empty pros array reads as \"the reviewer mentioned no pros\" (a real claim); null reads as \"the document did not address pros\" - choose deliberately when the distinction matters.",
+    "difficulty": "hard",
+    "tags": [
+      "schema",
+      "semantics"
+    ]
+  },
+  {
+    "id": "d4-027",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "When are few-shot examples especially effective in extraction?",
+    "back": "When the model is inconsistent across varied document structures; complete input-output pairs for edge cases teach subtle distinctions and standardized formats better than verbose written rules.",
+    "difficulty": "medium",
+    "tags": [
+      "few-shot",
+      "extraction"
+    ]
+  },
+  {
+    "id": "d4-028",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What provenance fields help high-stakes extraction?",
+    "back": "Fields like source_location, source_quote, and effective_date, so reviewers can audit choices - critical with amendments, conflicting sections, or required citations.",
+    "difficulty": "medium",
+    "tags": [
+      "provenance",
+      "extraction"
+    ]
+  },
+  {
+    "id": "d4-029",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why might strict JSON structured outputs and the citation feature be incompatible?",
+    "back": "Citations require interleaved citation blocks while JSON schemas require constrained JSON; for structured extraction plus provenance, represent source locations explicitly in your schema instead.",
+    "difficulty": "hard",
+    "tags": [
+      "citations",
+      "structured-output"
+    ]
+  },
+  {
+    "id": "d4-030",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "For a contract with amendments, why may a single scalar field be the wrong schema?",
+    "back": "It loses original vs amended values; capture both with effective dates and locations so the precedence is auditable.",
+    "difficulty": "medium",
+    "tags": [
+      "schema",
+      "amendments"
+    ]
+  },
+  {
+    "id": "d4-031",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What semantic errors do JSON Schema and strict tool use NOT catch?",
+    "back": "Domain errors like line items not summing to totals, dates out of range, IDs not matching known records, missing required citations, or fields copied into the wrong category - add domain validation.",
+    "difficulty": "medium",
+    "tags": [
+      "semantic-validation",
+      "schema"
+    ]
+  },
+  {
+    "id": "d4-032",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "On semantic validation failure, what is more effective than a blind retry or temperature: 0?",
+    "back": "A correction request that includes the source document, the previous extraction, and the exact validation errors; temperature 0 only removes variability without fixing the mismatch.",
+    "difficulty": "hard",
+    "tags": [
+      "validation-loop",
+      "retry"
+    ]
+  },
+  {
+    "id": "d4-033",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "How do you make invoice total mismatches auto-detectable?",
+    "back": "Add explicit reconciliation fields (e.g., calculated_total, stated_total, totals_match) and flag mismatches automatically rather than forcing the model to reconcile values it cannot verify.",
+    "difficulty": "medium",
+    "tags": [
+      "reconciliation",
+      "validation"
+    ]
+  },
+  {
+    "id": "d4-034",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Which extraction failure cannot be fixed by retrying with the same input?",
+    "back": "When the needed information is in an external document not provided to the model - retries only hallucinate; retrieve the missing source or route to human review.",
+    "difficulty": "hard",
+    "tags": [
+      "retry",
+      "limits"
+    ]
+  },
+  {
+    "id": "d4-035",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "A locale number \"1,234\" must become integer 1234. Can a retry with feedback fix it?",
+    "back": "Yes - format mismatches like locale numbers or ISO datetime vs date-only are easily fixed on retry with feedback, unlike genuinely missing source information.",
+    "difficulty": "medium",
+    "tags": [
+      "retry",
+      "formatting"
+    ]
+  },
+  {
+    "id": "d4-036",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "For a long but in-context document with scattered facts, what outperforms raw extraction or mechanical chunking?",
+    "back": "A model-driven pre-extraction pass that surfaces relevant sections into a structured intermediate, then extraction against that intermediate; it keeps the model focused and reduces missed scattered details.",
+    "difficulty": "hard",
+    "tags": [
+      "long-documents",
+      "pre-extraction"
+    ]
+  },
+  {
+    "id": "d4-037",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "When chunking vs pre-extraction summarization for long documents?",
+    "back": "Chunk when documents exceed context limits or sections are independent; use pre-extraction summarization when the document fits but key facts are scattered. Chunking loses cross-section relationships; summarization alone loses exact values.",
+    "difficulty": "hard",
+    "tags": [
+      "long-documents",
+      "chunking"
+    ]
+  },
+  {
+    "id": "d4-038",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Is confidence: 0.92 a 92% accuracy guarantee?",
+    "back": "No. Self-reported confidence is useful only after calibration against a labeled validation set measured by document type, field, source quality, and confidence band.",
+    "difficulty": "medium",
+    "tags": [
+      "confidence",
+      "calibration"
+    ]
+  },
+  {
+    "id": "d4-039",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "What should route an extraction to human review?",
+    "back": "Low calibrated confidence, ambiguous or contradictory source content, high-impact fields, failed semantic validation, and new or historically error-prone document types.",
+    "difficulty": "easy",
+    "tags": [
+      "human-review",
+      "routing"
+    ]
+  },
+  {
+    "id": "d4-040",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is verifying only aggregate accuracy insufficient before automating extractions?",
+    "back": "A 97% overall pipeline can be 80% on a specific document type or field; break down accuracy by segment before raising the automation threshold - comparing thresholds first is premature.",
+    "difficulty": "hard",
+    "tags": [
+      "automation",
+      "segmentation"
+    ]
+  },
+  {
+    "id": "d4-041",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Even after automation begins, why keep sampling high-confidence outputs?",
+    "back": "Stratified random review of a fixed percentage detects hidden systematic errors that look reasonable to humans not reading the source; downstream complaints alone miss them.",
+    "difficulty": "medium",
+    "tags": [
+      "automation",
+      "sampling"
+    ]
+  },
+  {
+    "id": "d4-042",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "When a recurring failure mode is identified, what is usually the highest-leverage fix?",
+    "back": "Adding a few-shot example demonstrating correct handling; fine-tuning, regex post-processing, or new schema fields are heavier interventions to consider only if focused prompt/schema changes do not move the metric.",
+    "difficulty": "hard",
+    "tags": [
+      "feedback-loop",
+      "few-shot"
+    ]
+  },
+  {
+    "id": "d4-043",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "For dismissed code-review findings, what fields enable analyzing over-reporting?",
+    "back": "detected_pattern, rule_id, or evidence so analysts see which code construct triggered each finding; without them you only see \"35% dismissed,\" not which constructs to suppress.",
+    "difficulty": "medium",
+    "tags": [
+      "feedback-loop",
+      "code-review"
+    ]
+  },
+  {
+    "id": "d4-044",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "When does the Message Batches API make sense for extraction?",
+    "back": "High-volume asynchronous work that tolerates delayed results; use real-time Messages API for urgent documents, interactive flows, or SLA-sensitive alerts.",
+    "difficulty": "easy",
+    "tags": [
+      "batch",
+      "extraction"
+    ]
+  },
+  {
+    "id": "d4-045",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why must batch results be joined by custom_id?",
+    "back": "Results may not arrive in the same order as requests; always join by custom_id, never by position.",
+    "difficulty": "easy",
+    "tags": [
+      "batch",
+      "custom-id"
+    ]
+  },
+  {
+    "id": "d4-046",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "For mixed urgency, route per-document or per-batch?",
+    "back": "Per-document: standard docs to the Batch API for cost savings, urgent ones to real-time. Batching everything then expediting inside the batch defeats the purpose because batch latency is the issue.",
+    "difficulty": "hard",
+    "tags": [
+      "batch",
+      "routing"
+    ]
+  },
+  {
+    "id": "d4-047",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "For 50,000 documents under a two-week deadline with iteration expected, what is the best strategy?",
+    "back": "Submit everything to the Batch API for the bulk discount, then submit failures in successive refined batches; ten sequential 5,000 batches costs more calendar time without meaningful learning.",
+    "difficulty": "hard",
+    "tags": [
+      "batch",
+      "bulk-extraction"
+    ]
+  },
+  {
+    "id": "d4-048",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Approximately what discount does batch processing offer and what is the worst-case window?",
+    "back": "Roughly 50% off equivalent on-demand pricing, with up to a 24-hour completion window; design SLAs around the 24-hour worst case.",
+    "difficulty": "easy",
+    "tags": [
+      "batch",
+      "cost"
+    ]
+  },
+  {
+    "id": "d4-049",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is forcing text JSON with prompt instructions a pitfall when tool use is available?",
+    "back": "Prompt-only JSON is more fragile than schema-backed tool use; also it ignores tool-definition token cost and people confuse auto with required tool use.",
+    "difficulty": "medium",
+    "tags": [
+      "structured-output",
+      "pitfall"
+    ]
+  },
+  {
+    "id": "d4-050",
+    "domain": 4,
+    "domain_name": "Prompt Engineering & Structured Output",
+    "front": "Why is using batch processing solely for cost a pitfall?",
+    "back": "Latency and SLA dominate; if a result is needed immediately the discount does not matter, and batch is wrong when humans are waiting interactively.",
+    "difficulty": "medium",
+    "tags": [
+      "batch",
+      "sla"
+    ]
+  },
+  {
+    "id": "d5-001",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "In one sentence, what is context management?",
+    "back": "Context management is state management: the model sees a request, not your database, so you decide what to include.",
+    "difficulty": "easy",
+    "tags": [
+      "context-management",
+      "state"
+    ]
+  },
+  {
+    "id": "d5-002",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Match need to strategy: recent conversational flow.",
+    "back": "Keep recent turns verbatim.",
+    "difficulty": "easy",
+    "tags": [
+      "context-strategy",
+      "sliding-window"
+    ]
+  },
+  {
+    "id": "d5-003",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Match need to strategy: long-term narrative continuity.",
+    "back": "Progressive summaries that extract decisions and themes.",
+    "difficulty": "easy",
+    "tags": [
+      "context-strategy",
+      "summarization"
+    ]
+  },
+  {
+    "id": "d5-004",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Match need to strategy: current user preferences.",
+    "back": "A structured state object representing current truth.",
+    "difficulty": "easy",
+    "tags": [
+      "context-strategy",
+      "structured-state"
+    ]
+  },
+  {
+    "id": "d5-005",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Match need to strategy: exact facts and numbers.",
+    "back": "Retrieval from source or a structured fact store.",
+    "difficulty": "easy",
+    "tags": [
+      "context-strategy",
+      "retrieval"
+    ]
+  },
+  {
+    "id": "d5-006",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Match need to strategy: persistent creative canon.",
+    "back": "A compact \"bible\" or reference section retained verbatim.",
+    "difficulty": "easy",
+    "tags": [
+      "context-strategy",
+      "reference-section"
+    ]
+  },
+  {
+    "id": "d5-007",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Match need to strategy: tool-heavy workflows.",
+    "back": "Extract the relevant fields and discard verbose payloads.",
+    "difficulty": "easy",
+    "tags": [
+      "context-strategy",
+      "tool-compression"
+    ]
+  },
+  {
+    "id": "d5-008",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "How does a sliding window work and when does it fail?",
+    "back": "It keeps the most recent messages and drops older ones - simple and cheap, but it fails when users refer back to earlier decisions, preferences, or exact data.",
+    "difficulty": "easy",
+    "tags": [
+      "sliding-window",
+      "limits"
+    ]
+  },
+  {
+    "id": "d5-009",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When is a sliding window the right choice based on production logs?",
+    "back": "When logs show older messages are rarely referenced - e.g., 94% of messages only reference the last 3-5 exchanges and the rest ask for easily re-stated info; keep the last 8-10 turns plus the system prompt.",
+    "difficulty": "medium",
+    "tags": [
+      "sliding-window",
+      "traffic-analysis"
+    ]
+  },
+  {
+    "id": "d5-010",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "How should you handle accumulated RAG results that crowd out conversation coherence?",
+    "back": "Apply a sliding window specifically to RAG results (keep the last 2-3 retrievals) while preserving conversation history under its own policy; aggressive dedup or one big digest is rarely better.",
+    "difficulty": "hard",
+    "tags": [
+      "sliding-window",
+      "rag"
+    ]
+  },
+  {
+    "id": "d5-011",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What does progressive summarization do?",
+    "back": "Replaces older conversation blocks with a running structured summary while keeping recent turns verbatim.",
+    "difficulty": "easy",
+    "tags": [
+      "summarization",
+      "hybrid"
+    ]
+  },
+  {
+    "id": "d5-012",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What should a useful progressive summary explicitly extract?",
+    "back": "Decisions, current preferences, open questions, and important facts - not a vague narrative that loses the exact facts users later ask about.",
+    "difficulty": "easy",
+    "tags": [
+      "summarization",
+      "structure"
+    ]
+  },
+  {
+    "id": "d5-013",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why is increasing a sliding window from 25 to 50 turns rarely the right fix?",
+    "back": "It just defers the limit; a hybrid of structured summaries for older turns plus recent turns verbatim preserves long-term continuity at much lower token cost.",
+    "difficulty": "hard",
+    "tags": [
+      "sliding-window",
+      "hybrid"
+    ]
+  },
+  {
+    "id": "d5-014",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What content needs a persistent reference section?",
+    "back": "Content that must stay exact and stable across the whole conversation: story bibles, user-defined terms, critical safety info (allergies, medication interactions), and active scaling parameters.",
+    "difficulty": "easy",
+    "tags": [
+      "reference-section",
+      "safety"
+    ]
+  },
+  {
+    "id": "d5-015",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why separate a reference section from the trimmed discussion?",
+    "back": "Applying a single summarization pass over both risks losing the exact details (allergies, serving counts, definitions) the user expects to remain consistent.",
+    "difficulty": "medium",
+    "tags": [
+      "reference-section",
+      "summarization"
+    ]
+  },
+  {
+    "id": "d5-016",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "For a dinner-party session with allergies, serving counts, and general back-and-forth, what strategy combination works?",
+    "back": "Extract critical data into a compact reference section, summarize general discussion, and retain recent exchanges verbatim - a pure sliding window loses allergies; a single summary blurs the serving count.",
+    "difficulty": "hard",
+    "tags": [
+      "hybrid",
+      "reference-section"
+    ]
+  },
+  {
+    "id": "d5-017",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When users revise preferences mid-conversation, what is the most reliable design?",
+    "back": "Maintain a canonical structured state object representing current truth and include it in each request; update it whenever a preference changes.",
+    "difficulty": "medium",
+    "tags": [
+      "structured-state",
+      "preferences"
+    ]
+  },
+  {
+    "id": "d5-018",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why is structured state better than a system-prompt instruction to \"always prioritize the most recently stated preferences\"?",
+    "back": "The model usually does but not reliably enough; a single canonical state object gives one source of truth instead of asking the model to infer current truth from old and new values.",
+    "difficulty": "hard",
+    "tags": [
+      "structured-state",
+      "reliability"
+    ]
+  },
+  {
+    "id": "d5-019",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "A user says \"very low risk tolerance\" then \"maximize returns like my friends did with crypto.\" What should the agent do?",
+    "back": "Surface the contradiction and ask which priority should govern; a balanced compromise risks recommending something that fits neither stated preference.",
+    "difficulty": "hard",
+    "tags": [
+      "conflicting-goals",
+      "clarification"
+    ]
+  },
+  {
+    "id": "d5-020",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "How can structured state help a customer raising three issues across 45 turns?",
+    "back": "Track each issue's current status (order ID, amounts, resolution state) independently of the linear conversation so the agent can reliably answer about any one later.",
+    "difficulty": "medium",
+    "tags": [
+      "structured-state",
+      "customer-service"
+    ]
+  },
+  {
+    "id": "d5-021",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When must you use retrieval or a fact store instead of summaries?",
+    "back": "When users need exact p-values, source quotes, clauses, measurements, transaction IDs, or numeric thresholds - summaries lose precision.",
+    "difficulty": "easy",
+    "tags": [
+      "retrieval",
+      "fact-store"
+    ]
+  },
+  {
+    "id": "d5-022",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "A research assistant summarizes after 8 turns but users then ask for precise numbers the summary blurred. Most direct fix?",
+    "back": "Re-inject the relevant source sections on demand when a question signals it needs precision; a full structured fact store is heavier and higher-fidelity summaries balloon back into the document.",
+    "difficulty": "hard",
+    "tags": [
+      "retrieval",
+      "summarization"
+    ]
+  },
+  {
+    "id": "d5-023",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "How should verbose tool results be compressed?",
+    "back": "After a tool result is processed, extract the fields that matter and drop the rest (e.g., keep order_id, items, return_window, resolution_state; discard internal backend fields).",
+    "difficulty": "medium",
+    "tags": [
+      "tool-compression",
+      "context"
+    ]
+  },
+  {
+    "id": "d5-024",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "A lookup_order tool returns 40+ fields and was called many times during a return investigation. Best handling?",
+    "back": "Compress each prior order response to its return-relevant fields then make additional lookups - more reliable than accumulating raw responses, summarizing all into prose, or moving them to a vector DB.",
+    "difficulty": "hard",
+    "tags": [
+      "tool-compression",
+      "investigation"
+    ]
+  },
+  {
+    "id": "d5-025",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why shouldn't a returning user be served from stale tool outputs in an old transcript?",
+    "back": "Tool results age; start with a structured summary of prior interaction, then fetch fresh state before making claims about current status.",
+    "difficulty": "medium",
+    "tags": [
+      "stale-data",
+      "returning-users"
+    ]
+  },
+  {
+    "id": "d5-026",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What should a good returning-session summary contain?",
+    "back": "User issue, prior actions, known IDs, last-known status with timestamp, and a fresh_lookup_required flag - then targeted fresh lookups.",
+    "difficulty": "medium",
+    "tags": [
+      "returning-users",
+      "summary"
+    ]
+  },
+  {
+    "id": "d5-027",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why not just resume the old session and instruct the agent to \"prefer the most recent tool results\"?",
+    "back": "The agent often references old tool results regardless, especially when older ones are more detailed; starting fresh with a structured summary plus targeted fresh lookups is the most reliable pattern.",
+    "difficulty": "hard",
+    "tags": [
+      "stale-data",
+      "returning-users"
+    ]
+  },
+  {
+    "id": "d5-028",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When an external system updates state during an active chat, how should Claude learn about it?",
+    "back": "Include the fresh state in the next model request (system/application context block, injected state section, or a prefix on the next user turn); do not expect Claude to know about events outside the request.",
+    "difficulty": "medium",
+    "tags": [
+      "external-updates",
+      "state"
+    ]
+  },
+  {
+    "id": "d5-029",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Should the agent emit unsolicited assistant messages when external state changes mid-chat?",
+    "back": "No - do not generate unsolicited messages unless the product intentionally supports proactive notifications; just make current state clearly more authoritative than stale prior tool results.",
+    "difficulty": "medium",
+    "tags": [
+      "external-updates",
+      "proactive"
+    ]
+  },
+  {
+    "id": "d5-030",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why version system prompts for users with ongoing multi-session conversations?",
+    "back": "Changing a system prompt midstream can make old context conflict with new behavior; associate each conversation with the version it started under or use a deliberate migration strategy.",
+    "difficulty": "medium",
+    "tags": [
+      "prompt-versioning",
+      "sessions"
+    ]
+  },
+  {
+    "id": "d5-031",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What does \"confusing context capacity with attention\" mean?",
+    "back": "A 200K window does not mean every detail is equally salient; large capacity does not guarantee the model attends equally to all of it.",
+    "difficulty": "medium",
+    "tags": [
+      "attention",
+      "context-window"
+    ]
+  },
+  {
+    "id": "d5-032",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Is the system prompt a one-time initialization message?",
+    "back": "No. It must be included in every request; Claude has no memory between calls, so omitting it on later turns makes behavior diverge immediately, not gradually.",
+    "difficulty": "easy",
+    "tags": [
+      "system-prompt",
+      "stateless"
+    ]
+  },
+  {
+    "id": "d5-033",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Even when the system prompt is sent every call, why can behavior still drift in long conversations?",
+    "back": "Attention to it weakens as recent assistant outputs and latest user turns compete for attention; the fix is structural - reinforce at breakpoints, version the prompt, move hard rules into code.",
+    "difficulty": "hard",
+    "tags": [
+      "prompt-dilution",
+      "attention"
+    ]
+  },
+  {
+    "id": "d5-034",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What are XML-style tags in a system prompt good for?",
+    "back": "Improving salience and organization, especially when the same word means different things in different contexts and when you want constraints referenceable later (\"apply the rule from <safety>\"). They are not magic.",
+    "difficulty": "medium",
+    "tags": [
+      "system-prompt",
+      "xml-tags"
+    ]
+  },
+  {
+    "id": "d5-035",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When external state changes without the agent asking, system prompt or tool result?",
+    "back": "The system prompt for the next call - it is the natural home for what is currently true about the user/account/environment; tool results are for information the agent itself requested.",
+    "difficulty": "hard",
+    "tags": [
+      "system-prompt",
+      "external-updates"
+    ]
+  },
+  {
+    "id": "d5-036",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When should you use general principles vs explicit conditionals in a system prompt?",
+    "back": "Principles for judgment-heavy behavior (adapt depth to expertise, one clarifying question at a time); explicit conditionals for safety-critical triggers and policy bright lines.",
+    "difficulty": "medium",
+    "tags": [
+      "principles",
+      "conditionals"
+    ]
+  },
+  {
+    "id": "d5-037",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "If a rule must hold 100% of the time, where does it belong?",
+    "back": "Out of the prompt and into code - prompt instructions are probabilistic guidance, not deterministic enforcement.",
+    "difficulty": "easy",
+    "tags": [
+      "enforcement",
+      "conditionals"
+    ]
+  },
+  {
+    "id": "d5-038",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why is translating every nuanced behavior into explicit conditionals an over-correction?",
+    "back": "It forces shallow keyword matching and misclassifies users who phrase things atypically; a general principle lets the model integrate dozens of implicit signals like vocabulary and follow-up specificity.",
+    "difficulty": "hard",
+    "tags": [
+      "principles",
+      "conditionals"
+    ]
+  },
+  {
+    "id": "d5-039",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When do few-shot examples outperform long prose instructions in a system prompt?",
+    "back": "When the model needs to learn distinctions (beginner vs expert explanations, acceptable vs reportable findings, handling missing info) - examples are denser than prose for behavior the model must learn rather than recite.",
+    "difficulty": "medium",
+    "tags": [
+      "few-shot",
+      "system-prompt"
+    ]
+  },
+  {
+    "id": "d5-040",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "A system prompt has grown into long bulleted rule lists and behavior drifts. Best fix?",
+    "back": "Replace chunks of rules with two or three contrasting examples; the model cannot keep all rules salient at once, and examples restore adherence more reliably than more prose.",
+    "difficulty": "hard",
+    "tags": [
+      "prompt-dilution",
+      "few-shot"
+    ]
+  },
+  {
+    "id": "d5-041",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "What is prompt dilution?",
+    "back": "System-prompt adherence weakening as a conversation grows, even before the context window is full, because the assistant's previous responses become a behavioral pattern.",
+    "difficulty": "medium",
+    "tags": [
+      "prompt-dilution",
+      "attention"
+    ]
+  },
+  {
+    "id": "d5-042",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Name mitigations for prompt dilution.",
+    "back": "Concise well-structured prompts, critical instructions in salient sections, behavioral examples, natural reminders before complex tasks, and enforcing important rules outside the model.",
+    "difficulty": "medium",
+    "tags": [
+      "prompt-dilution",
+      "mitigation"
+    ]
+  },
+  {
+    "id": "d5-043",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Describe the user-role reminder reinforcement pattern.",
+    "back": "At a phase change (finishing one task, returning after idle, switching topics) append a brief user-role message restating current constraints - more effective than re-sending the whole system prompt because it integrates with the flow the model is attending to.",
+    "difficulty": "hard",
+    "tags": [
+      "reinforcement",
+      "prompt-dilution"
+    ]
+  },
+  {
+    "id": "d5-044",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "How should the system prompt be treated for multi-day sessions?",
+    "back": "As living configuration - allow the application to update it between turns to reflect what is now true (current plan, latest decisions, completed steps); the full messages still go in the messages array.",
+    "difficulty": "medium",
+    "tags": [
+      "prompt-versioning",
+      "living-config"
+    ]
+  },
+  {
+    "id": "d5-045",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When should an agent ask a clarifying question?",
+    "back": "When multiple interpretations lead to substantially different actions, the action is irreversible or costly, the user expressed conflicting goals, or required information is truly missing.",
+    "difficulty": "medium",
+    "tags": [
+      "clarification",
+      "ambiguity"
+    ]
+  },
+  {
+    "id": "d5-046",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "When should an agent proceed with stated assumptions instead of asking?",
+    "back": "When the action is low risk, context strongly suggests intent, and the user can easily correct the direction - state the assumption and invite redirection.",
+    "difficulty": "medium",
+    "tags": [
+      "assumptions",
+      "ambiguity"
+    ]
+  },
+  {
+    "id": "d5-047",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "For a genuinely ambiguous request, one clarifying question or a list of three or four?",
+    "back": "One focused question that most changes your next action; multiple simultaneous questions feel like an interrogation and users often answer only the first.",
+    "difficulty": "medium",
+    "tags": [
+      "clarification",
+      "ux"
+    ]
+  },
+  {
+    "id": "d5-048",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "Why is front-loading many clarifying questions before any low-risk action usually wrong?",
+    "back": "The cost of a small redirected effort is usually lower than the friction of long preflight Q&A; the exception is irreversible, costly, or regulated actions where you must ask first.",
+    "difficulty": "hard",
+    "tags": [
+      "clarification",
+      "risk"
+    ]
+  },
+  {
+    "id": "d5-049",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "A user wants both \"the cheapest flight\" and \"arriving by 9 AM Friday nonstop.\" What should the agent do?",
+    "back": "Name the tension explicitly and ask which constraint should bend; a hidden compromise produces a result satisfying neither stated goal and usually requires rework.",
+    "difficulty": "hard",
+    "tags": [
+      "conflicting-goals",
+      "clarification"
+    ]
+  },
+  {
+    "id": "d5-050",
+    "domain": 5,
+    "domain_name": "Context Management & Reliability",
+    "front": "If responses become repetitive, why is a \"never say X\" list not the best first fix?",
+    "back": "Better options are improved examples, a concise style guide, partial assistant prefill for the opener, or safe cosmetic post-processing; prefill a short neutral first phrase rather than expanding the system prompt.",
+    "difficulty": "medium",
+    "tags": [
+      "repetition",
+      "prefill"
+    ]
+  }
+]
