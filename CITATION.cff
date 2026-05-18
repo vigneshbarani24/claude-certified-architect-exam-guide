@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: claude-certified-architect-exam-guide
+message: >-
+  If you use, adapt, or redistribute this work, you must give attribution
+  under the CC BY 4.0 license. Please cite it using this metadata.
+type: dataset
+authors:
+  - name: "the claude-certified-architect-exam-guide authors and contributors"
+repository-code: "https://github.com/vigneshbarani24/claude-certified-architect-exam-guide"
+abstract: >-
+  An independent, community-owned, open-source study system for the Claude
+  Certified Architect - Foundations (CCAF) exam: study guide, flashcards,
+  CLI quiz tools, mock exam, and NotebookLM bundles. Not affiliated with,
+  endorsed by, or sponsored by Anthropic.
+keywords:
+  - claude
+  - certification
+  - study-guide
+  - mcp
+  - claude-code
+license: CC-BY-4.0
+date-released: "2026-05-18"

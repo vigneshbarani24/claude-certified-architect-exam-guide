@@ -1798,6 +1798,19 @@ When faced with a scenario, identify:
 
 ---
 
+## Sources & Attribution
+
+Copyright © 2026 the claude-certified-architect-exam-guide authors and
+contributors. Licensed CC BY 4.0 — reuse and adaptation are permitted with
+attribution; see the repository `NOTICE` and `LICENSE`.
+
+This guide adapts the community-created, CC BY 4.0 "Independent Study Booklet
+— Claude Certified Architect – Foundations Exam Preparation Guide" by Daron
+Yondem (<https://github.com/daronyondem/claude-architect-exam-guide>), an
+independent work not affiliated with Anthropic, with attribution to the
+original author. Exam structure (domains, weightings, task counts) is factual
+information from the publicly available official Anthropic exam guide.
+
 ## Disclaimer
 
 This is an independent community resource. It is not affiliated with, endorsed

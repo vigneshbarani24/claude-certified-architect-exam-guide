@@ -108,10 +108,35 @@ website's contribution flow.
 
 All data files are validated by GitHub Actions before merge.
 
-## License
+## License, Copyright & Attribution
 
-Licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE).
-You may share and adapt this work with attribution.
+This is **original work**. Copyright © 2026 the
+claude-certified-architect-exam-guide authors and contributors. It is licensed
+to the public under [Creative Commons Attribution 4.0 International (CC BY
+4.0)](LICENSE). Copyright is retained by the authors — the license is a
+conditional permission grant, not a waiver.
+
+You may share and adapt this work, including commercially, **only with
+attribution**. See [`NOTICE`](NOTICE) for the exact required attribution
+string and reuse terms, and [`CITATION.cff`](CITATION.cff) for citation
+metadata. In short, if you reuse this:
+
+- Credit "claude-certified-architect-exam-guide, © its authors and
+  contributors, CC BY 4.0" with a link to the repo and the license.
+- Keep all copyright, license, and attribution notices intact (in source,
+  the site footer, the guide, and the data files).
+- Do not imply endorsement by these authors or by Anthropic.
+
+Removing attribution or republishing the content as your own violates the
+license and terminates the rights it grants (CC BY 4.0 §6). If you find an
+unattributed copy, that is a license violation you can report.
+
+**Sources & upstream attribution.** The study guide adapts the
+community-created, CC BY 4.0 "Independent Study Booklet" by Daron Yondem
+(<https://github.com/daronyondem/claude-architect-exam-guide>), with
+attribution; exam structure facts come from the public official Anthropic
+exam guide. "Claude" and "Anthropic" are trademarks of Anthropic, PBC, used
+nominatively only.
 
 ## Disclaimer
 

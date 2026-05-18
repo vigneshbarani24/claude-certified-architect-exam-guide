@@ -1,0 +1,64 @@
+claude-certified-architect-exam-guide
+=====================================
+
+Copyright (c) 2026 the claude-certified-architect-exam-guide authors and
+contributors.
+
+Repository:
+https://github.com/vigneshbarani24/claude-certified-architect-exam-guide
+
+This is original work. It is licensed to the public under the Creative
+Commons Attribution 4.0 International License (CC BY 4.0). See the LICENSE
+file. Copyright is retained by the authors; the license is a conditional
+permission grant, not a transfer or waiver of copyright.
+
+
+How to comply when you reuse or adapt this work
+-----------------------------------------------
+
+CC BY 4.0 lets you share and adapt this material, including commercially,
+ONLY if you:
+
+1. Give appropriate credit using substantially the following attribution:
+
+   "Based on claude-certified-architect-exam-guide, (c) its authors and
+    contributors, licensed CC BY 4.0 —
+    https://github.com/vigneshbarani24/claude-certified-architect-exam-guide"
+
+2. Provide a link to the CC BY 4.0 license.
+3. Indicate if you made changes.
+4. Do not remove or obscure copyright, license, or attribution notices in
+   the source, the rendered website footer, the guide, or the data files.
+5. Do not state or imply that your use is endorsed by these authors or by
+   Anthropic.
+
+Stripping attribution, relicensing under more restrictive terms without the
+required notices, or republishing the content as your own violates the
+license and automatically terminates the rights it grants (CC BY 4.0 §6).
+
+
+Attribution of upstream sources used in this work
+-------------------------------------------------
+
+To keep our own hands clean and to honor the licenses of our sources, this
+project credits the material it was built from:
+
+- The study guide adapts the community-created "Independent Study Booklet —
+  Claude Certified Architect – Foundations Exam Preparation Guide" by Daron
+  Yondem (https://github.com/daronyondem/claude-architect-exam-guide), which
+  is itself licensed CC BY 4.0. That work is independent and not affiliated
+  with Anthropic. Adaptations here remain under CC BY 4.0 with attribution to
+  the original author.
+- Domain names, weightings, task counts, and the exam structure are factual
+  information drawn from the publicly available official Anthropic exam
+  guide. Facts are not copyrightable; no exam questions are reproduced or
+  paraphrased.
+
+
+Trademarks
+----------
+
+"Claude" and "Anthropic" are trademarks of Anthropic, PBC. This project is an
+independent community resource and is not affiliated with, endorsed by, or
+sponsored by Anthropic. Trademarks are used only nominatively to identify the
+subject matter of the exam being studied.
