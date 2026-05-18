@@ -1,0 +1,52 @@
+name: Validate content
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate CSV columns, JSON shape, and duplicate ids
+        run: python scripts/python/validate_content.py
+
+      - name: Validate all-domains.json against JSON schema
+        run: >
+          npx --yes ajv-cli@5 validate
+          -s flashcards/schema.json
+          -d flashcards/all-domains.json
+
+      - name: Lint markdown (guide + notebooklm)
+        run: >
+          npx --yes markdownlint-cli2
+          "guide/**/*.md" "notebooklm/**/*.md"
+        continue-on-error: true
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci || npm install
+
+      - name: Type-check web
+        working-directory: web
+        run: npx tsc --noEmit
+
+      - name: Ruff lint Python scripts
+        run: |
+          pip install ruff
+          ruff check scripts/python

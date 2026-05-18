@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Next.js
+web/.next/
+web/out/
+web/build/
+web/.vercel
+web/next-env.d.ts
+
+# Environment
+.env
+.env*.local
+.env.local
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.log
+
+# Build artifacts
+dist/
+*.tsbuildinfo

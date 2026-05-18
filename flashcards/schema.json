@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CCAF flashcard deck",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "domain", "domain_name", "front", "back", "difficulty", "tags"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^d[1-5]-[0-9]{3}$" },
+      "domain": { "type": "integer", "minimum": 1, "maximum": 5 },
+      "domain_name": {
+        "type": "string",
+        "enum": [
+          "Agentic Architecture & Orchestration",
+          "Tool Design & MCP Integration",
+          "Claude Code Configuration & Workflows",
+          "Prompt Engineering & Structured Output",
+          "Context Management & Reliability"
+        ]
+      },
+      "front": { "type": "string", "minLength": 1 },
+      "back": { "type": "string", "minLength": 1 },
+      "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+      "tags": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

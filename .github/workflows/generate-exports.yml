@@ -1,0 +1,51 @@
+name: Generate exports
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "guide/**"
+      - "flashcards/**"
+      - "scripts/python/generate_notebooklm.py"
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate-notebooklm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r scripts/python/requirements.txt
+
+      - name: Regenerate NotebookLM bundles
+        run: python scripts/python/generate_notebooklm.py --all
+
+      - name: Commit regenerated bundles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain notebooklm/)" ]; then
+            git add notebooklm/
+            git commit -m "chore: regenerate notebooklm bundles"
+            git push
+          else
+            echo "No NotebookLM changes to commit."
+          fi
+
+      - name: Trigger Vercel deploy
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$VERCEL_DEPLOY_HOOK" ]; then
+            curl -fsSL -X POST "$VERCEL_DEPLOY_HOOK"
+          else
+            echo "No VERCEL_DEPLOY_HOOK secret set; skipping deploy trigger."
+          fi
