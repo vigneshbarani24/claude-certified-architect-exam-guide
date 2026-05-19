@@ -11,18 +11,24 @@ import {
   Flame,
   Share2,
   Compass,
+  GraduationCap,
+  Stethoscope,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DomainWeights } from "@/components/home/DomainWeights";
-import { DOMAIN_META } from "@/data/scenarios";
-
-const REPO_URL =
-  "https://github.com/vigneshbarani24/claude-certified-architect-exam-guide";
+import { DOMAIN_INFO } from "@/lib/learn";
+import { REPO_URL } from "@/lib/site";
 
 const FEATURES = [
+  {
+    title: "Curriculum",
+    desc: "A guided path through all five domains, each with its guide chapters and targeted practice.",
+    href: "/learn",
+    icon: GraduationCap,
+  },
   {
     title: "Study Guide",
     desc: "A single-file, domain-organized guide covering every objective with concept callouts and code.",
@@ -50,7 +56,7 @@ const FEATURES = [
   {
     title: "Learn Dashboard",
     desc: "Personalized study plan: domain mastery, what to study next, spaced review, and history.",
-    href: "/learn",
+    href: "/learn/progress",
     icon: Compass,
   },
   {
@@ -64,6 +70,44 @@ const FEATURES = [
     desc: "Your personal mock-score board, kept on-device. Share a card to challenge friends.",
     href: "/leaderboard",
     icon: Share2,
+  },
+];
+
+const LOOP = [
+  {
+    n: "1",
+    title: "Diagnose",
+    desc: "Take the short diagnostic to surface your weakest domains.",
+    href: "/learn/diagnostic",
+    icon: Stethoscope,
+  },
+  {
+    n: "2",
+    title: "Learn",
+    desc: "Work the curriculum domain by domain, straight from the guide.",
+    href: "/learn",
+    icon: GraduationCap,
+  },
+  {
+    n: "3",
+    title: "Drill",
+    desc: "Spaced-repetition flashcards keep the facts from fading.",
+    href: "/learn/drill",
+    icon: Layers,
+  },
+  {
+    n: "4",
+    title: "Mock",
+    desc: "Scenario-based questions under exam-like conditions.",
+    href: "/mock-exam",
+    icon: ListChecks,
+  },
+  {
+    n: "5",
+    title: "Track",
+    desc: "Watch mastery climb and let it route your next session.",
+    href: "/learn/progress",
+    icon: Compass,
   },
 ];
 
@@ -84,30 +128,7 @@ const BADGE_SHOWCASE = [
   "Streak 30",
 ];
 
-const STEPS = [
-  {
-    n: "1",
-    title: "Study",
-    desc: "Read the guide domain by domain. Mark sections as read to track progress.",
-  },
-  {
-    n: "2",
-    title: "Drill",
-    desc: "Run flashcards and the mock exam until weak domains turn green.",
-  },
-  {
-    n: "3",
-    title: "Pass",
-    desc: "Walk into the CCAF exam confident on all five domains.",
-  },
-];
-
 export default function Home() {
-  const domains = Object.entries(DOMAIN_META).map(([k, v]) => ({
-    domain: Number(k),
-    ...v,
-  }));
-
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
       {/* HERO */}
@@ -126,16 +147,16 @@ export default function Home() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg">
-            <Link href="/guide">
-              Start studying
+            <Link href="/learn">
+              Start the curriculum
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              <Github className="h-4 w-4" />
-              Star on GitHub
-            </a>
+            <Link href="/learn/diagnostic">
+              <Stethoscope className="h-4 w-4" />
+              Take the diagnostic
+            </Link>
           </Button>
         </div>
       </section>
@@ -176,6 +197,66 @@ export default function Home() {
         </div>
       </section>
 
+      {/* DOMAIN CARDS */}
+      <section className="pb-20">
+        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <h2 className="font-display text-3xl">Study by domain</h2>
+          <Link
+            href="/learn"
+            className="text-sm text-claude-orange hover:underline"
+          >
+            Open the full curriculum →
+          </Link>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {DOMAIN_INFO.map((d) => (
+            <Link key={d.slug} href={`/learn/${d.slug}`}>
+              <Card className="h-full transition-colors hover:border-claude-orange/50">
+                <CardContent className="space-y-3 p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-mono text-claude-orange">
+                      D{d.domain}
+                    </span>
+                    <Badge variant="outline">{d.weight}%</Badge>
+                  </div>
+                  <h3 className="font-display text-lg leading-tight">
+                    {d.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {d.tagline}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* THE LOOP */}
+      <section className="pb-20">
+        <h2 className="mb-8 text-center font-display text-3xl">
+          A loop that adapts to you
+        </h2>
+        <div className="grid gap-5 sm:grid-cols-3 lg:grid-cols-5">
+          {LOOP.map((s) => (
+            <Link key={s.n} href={s.href}>
+              <Card className="h-full transition-colors hover:border-claude-orange/50">
+                <CardContent className="space-y-3 p-6">
+                  <div className="flex items-center justify-between">
+                    <s.icon className="h-6 w-6 text-claude-orange" />
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full border border-claude-orange/50 font-mono text-xs text-claude-orange">
+                      {s.n}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-xl">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground">{s.desc}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* FEATURES */}
       <section className="pb-20">
         <h2 className="mb-8 text-center font-display text-3xl">
@@ -192,26 +273,6 @@ export default function Home() {
                 </CardContent>
               </Card>
             </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* HOW TO USE */}
-      <section className="pb-20">
-        <h2 className="mb-8 text-center font-display text-3xl">
-          How to use this
-        </h2>
-        <div className="grid gap-5 sm:grid-cols-3">
-          {STEPS.map((s) => (
-            <Card key={s.n}>
-              <CardContent className="space-y-3 p-6">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-claude-orange/50 font-mono text-claude-orange">
-                  {s.n}
-                </div>
-                <h3 className="font-display text-xl">{s.title}</h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
-              </CardContent>
-            </Card>
           ))}
         </div>
       </section>
@@ -235,7 +296,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {domains.map((d) => (
+              {DOMAIN_INFO.map((d) => (
                 <Button
                   key={d.domain}
                   asChild

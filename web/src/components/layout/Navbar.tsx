@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Github, Menu, Flame } from "lucide-react";
+import { ChevronDown, Github, Menu, Flame } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useProgress } from "@/components/progress/XpProvider";
@@ -15,16 +15,52 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { REPO_URL } from "@/lib/site";
 
-const REPO_URL =
-  "https://github.com/vigneshbarani24/claude-certified-architect-exam-guide";
+interface NavItem {
+  href: string;
+  label: string;
+}
 
-const NAV_LINKS = [
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const PRIMARY: NavItem[] = [
+  { href: "/learn", label: "Curriculum" },
   { href: "/guide", label: "Guide" },
-  { href: "/mock-exam", label: "Mock Exam" },
-  { href: "/flashcards", label: "Flashcards" },
-  { href: "/learn", label: "Learn" },
-  { href: "/notebooklm", label: "NotebookLM" },
+];
+
+const GROUPS: NavGroup[] = [
+  {
+    label: "Practice",
+    items: [
+      { href: "/mock-exam", label: "Mock Exam" },
+      { href: "/learn/drill", label: "Drill" },
+      { href: "/learn/diagnostic", label: "Diagnostic" },
+      { href: "/flashcards", label: "Flashcards" },
+    ],
+  },
+  {
+    label: "Reference",
+    items: [
+      { href: "/learn/quick-reference", label: "Quick Reference" },
+      { href: "/learn/glossary", label: "Glossary" },
+      { href: "/learn/exercises", label: "Exercises" },
+      { href: "/resources", label: "Resources" },
+      { href: "/notebooklm", label: "NotebookLM" },
+    ],
+  },
+];
+
+const PROGRESS_LINK: NavItem = { href: "/learn/progress", label: "Progress" };
+
+// Flattened list for the mobile sheet.
+const MOBILE_LINKS: NavItem[] = [
+  ...PRIMARY,
+  ...GROUPS.flatMap((g) => g.items),
+  PROGRESS_LINK,
   { href: "/profile", label: "Profile" },
   { href: "/leaderboard", label: "Leaderboard" },
 ];
@@ -34,7 +70,7 @@ function DuePill({ onClick }: { onClick?: () => void }) {
   if (!mounted || snapshot.srsDue <= 0) return null;
   return (
     <Link
-      href="/learn"
+      href="/learn/drill"
       onClick={onClick}
       className="flex items-center gap-1 rounded-md border border-claude-orange/40 bg-claude-orange/10 px-2 py-1.5 font-mono text-xs text-claude-orange transition-colors hover:bg-claude-orange/20"
       aria-label={`${snapshot.srsDue} cards due for review`}
@@ -81,6 +117,14 @@ export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  const linkClass = (active: boolean) =>
+    cn(
+      "rounded-md px-3 py-2 text-sm transition-colors",
+      active
+        ? "text-claude-orange"
+        : "text-muted-foreground hover:text-foreground"
+    );
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -94,23 +138,59 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {NAV_LINKS.map((l) => {
-            const active = pathname === l.href;
+          {PRIMARY.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={linkClass(pathname === l.href)}
+            >
+              {l.label}
+            </Link>
+          ))}
+
+          {GROUPS.map((g) => {
+            const groupActive = g.items.some((i) => pathname === i.href);
             return (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={cn(
-                  "rounded-md px-3 py-2 text-sm transition-colors",
-                  active
-                    ? "text-claude-orange"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {l.label}
-              </Link>
+              <div key={g.label} className="group relative">
+                <button
+                  type="button"
+                  className={cn(
+                    "flex items-center gap-1",
+                    linkClass(groupActive)
+                  )}
+                  aria-haspopup="true"
+                >
+                  {g.label}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                <div className="invisible absolute left-0 top-full z-50 min-w-[200px] pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  <div className="rounded-md border border-border bg-card p-1 shadow-lg">
+                    {g.items.map((i) => (
+                      <Link
+                        key={i.href}
+                        href={i.href}
+                        className={cn(
+                          "block rounded-sm px-3 py-2 text-sm transition-colors",
+                          pathname === i.href
+                            ? "bg-secondary text-claude-orange"
+                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        )}
+                      >
+                        {i.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             );
           })}
+
+          <Link
+            href={PROGRESS_LINK.href}
+            className={linkClass(pathname === PROGRESS_LINK.href)}
+          >
+            {PROGRESS_LINK.label}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -134,7 +214,7 @@ export function Navbar() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            <SheetContent side="right" className="w-72 overflow-y-auto">
               <SheetHeader>
                 <SheetTitle className="font-display text-xl">
                   CCAF Guide
@@ -150,7 +230,7 @@ export function Navbar() {
                 </div>
               </div>
               <nav className="mt-4 flex flex-col gap-1">
-                {NAV_LINKS.map((l) => (
+                {MOBILE_LINKS.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
