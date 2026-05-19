@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Flag, CheckCircle2, Circle } from "lucide-react";
 
 import {
   getAllQuestions,
@@ -19,7 +20,7 @@ import type { DomainStat } from "@/components/exam/DomainProgress";
 import { ExamTimer } from "@/components/exam/ExamTimer";
 import { cn } from "@/lib/utils";
 
-type Phase = "setup" | "running" | "done";
+type Phase = "setup" | "running" | "review" | "done";
 
 function MockExamInner() {
   const params = useSearchParams();
@@ -30,6 +31,7 @@ function MockExamInner() {
   const [deck, setDeck] = useState<Question[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [flags, setFlags] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
 
@@ -43,6 +45,17 @@ function MockExamInner() {
 
   const [scenarioLabel, setScenarioLabel] = useState("All scenarios");
 
+  const launch = (pool: Question[], label: string) => {
+    setScenarioLabel(label);
+    setDeck(shuffle(pool));
+    setIndex(0);
+    setAnswers({});
+    setFlags({});
+    setSelected(null);
+    setAnswered(false);
+    setPhase("running");
+  };
+
   const startExam = (mode: "selected" | "random4" | "all") => {
     let scenarios: string[];
     if (mode === "all") scenarios = allScenarios;
@@ -53,24 +66,16 @@ function MockExamInner() {
         selectedScenarios.length > 0 ? selectedScenarios : allScenarios;
 
     const pool =
-      mode === "all"
-        ? getAllQuestions()
-        : filterByScenarios(scenarios);
-    setScenarioLabel(
+      mode === "all" ? getAllQuestions() : filterByScenarios(scenarios);
+    const label =
       mode === "all"
         ? "All 6 scenarios"
         : mode === "random4"
           ? "4 random scenarios"
           : scenarios.length === 1
             ? scenarios[0]
-            : `${scenarios.length} scenarios`
-    );
-    setDeck(shuffle(pool));
-    setIndex(0);
-    setAnswers({});
-    setSelected(null);
-    setAnswered(false);
-    setPhase("running");
+            : `${scenarios.length} scenarios`;
+    launch(pool, label);
   };
 
   // Auto-start a single scenario when arriving via /mock-exam?scenario=<id>
@@ -86,13 +91,7 @@ function MockExamInner() {
     const pool = filterByScenarios([scenario.title]);
     if (pool.length === 0) return;
     setSelectedScenarios([scenario.title]);
-    setScenarioLabel(scenario.title);
-    setDeck(shuffle(pool));
-    setIndex(0);
-    setAnswers({});
-    setSelected(null);
-    setAnswered(false);
-    setPhase("running");
+    launch(pool, scenario.title);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -105,17 +104,29 @@ function MockExamInner() {
     setAnswers((a) => ({ ...a, [current.id]: label }));
   };
 
-  const onNext = () => {
-    if (index + 1 >= deck.length) {
-      setPhase("done");
-      return;
-    }
-    setIndex((i) => i + 1);
-    setSelected(null);
-    setAnswered(false);
+  const goTo = (i: number) => {
+    setIndex(i);
+    const q = deck[i];
+    const prev = q ? answers[q.id] : undefined;
+    setSelected(prev ?? null);
+    setAnswered(prev !== undefined);
   };
 
-  const finishNow = () => setPhase("done");
+  const onNext = () => {
+    if (index + 1 >= deck.length) {
+      setPhase("review");
+      return;
+    }
+    goTo(index + 1);
+  };
+
+  const toggleFlag = () => {
+    if (!current) return;
+    setFlags((f) => ({ ...f, [current.id]: !f[current.id] }));
+  };
+
+  // Timer expiry → score immediately (auto-submit) from wherever we are.
+  const submit = () => setPhase("done");
 
   const { correct, domainStats } = useMemo(() => {
     let c = 0;
@@ -140,7 +151,11 @@ function MockExamInner() {
     setPhase("setup");
     setDeck([]);
     setAnswers({});
+    setFlags({});
   };
+
+  const answeredCount = Object.keys(answers).length;
+  const flaggedCount = Object.values(flags).filter(Boolean).length;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
@@ -149,8 +164,8 @@ function MockExamInner() {
           <div>
             <h1 className="font-display text-4xl">Mock Exam</h1>
             <p className="mt-2 text-muted-foreground">
-              Pick scenarios, optionally start a timer, and answer
-              scenario-based questions with instant feedback.
+              Pick scenarios, optionally start a timer, flag tricky questions,
+              and review before you submit.
             </p>
           </div>
 
@@ -187,7 +202,7 @@ function MockExamInner() {
                   onChange={(e) => setUseTimer(e.target.checked)}
                   className="h-4 w-4 accent-[var(--claude-orange)]"
                 />
-                Enable 30-minute timer
+                Enable 30-minute timer (auto-submits at zero)
               </label>
 
               <div className="flex flex-wrap gap-3 pt-2">
@@ -200,10 +215,7 @@ function MockExamInner() {
                 >
                   4 random scenarios
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => startExam("all")}
-                >
+                <Button variant="outline" onClick={() => startExam("all")}>
                   All 6 scenarios
                 </Button>
               </div>
@@ -216,17 +228,50 @@ function MockExamInner() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <Badge variant="secondary">
-              {index + 1} / {deck.length}
+              {index + 1} of {deck.length}
             </Badge>
             <div className="flex items-center gap-3">
-              {useTimer && (
-                <ExamTimer minutes={30} onExpire={finishNow} />
-              )}
-              <Button variant="ghost" size="sm" onClick={finishNow}>
-                End exam
+              {useTimer && <ExamTimer minutes={30} onExpire={submit} />}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPhase("review")}
+              >
+                Review &amp; submit
               </Button>
             </div>
           </div>
+
+          {/* Progress bar with answered + flagged markers. */}
+          <div
+            className="flex gap-1"
+            role="img"
+            aria-label={`${answeredCount} of ${deck.length} answered, ${flaggedCount} flagged`}
+          >
+            {deck.map((q, i) => {
+              const isAnswered = answers[q.id] !== undefined;
+              const isFlagged = flags[q.id];
+              return (
+                <button
+                  key={q.id}
+                  type="button"
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to question ${i + 1}`}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-colors",
+                    i === index
+                      ? "bg-claude-orange"
+                      : isFlagged
+                        ? "bg-amber-500/70"
+                        : isAnswered
+                          ? "bg-claude-orange/40"
+                          : "bg-secondary"
+                  )}
+                />
+              );
+            })}
+          </div>
+
           <QuestionCard
             question={current}
             index={index}
@@ -236,7 +281,80 @@ function MockExamInner() {
             onSelect={onSelect}
             onNext={onNext}
             isLast={index + 1 >= deck.length}
+            flagged={!!flags[current.id]}
+            onToggleFlag={toggleFlag}
+            lastLabel="Review answers"
           />
+
+          <p className="text-center font-mono text-xs text-claude-muted">
+            Keys: A–D or 1–4 select · Enter next · F flag
+          </p>
+        </div>
+      )}
+
+      {phase === "review" && (
+        <div className="space-y-6">
+          <div>
+            <h1 className="font-display text-3xl">Review before submitting</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {answeredCount} of {deck.length} answered · {flaggedCount}{" "}
+              flagged. Jump back to any question, or submit to score.
+            </p>
+          </div>
+
+          <Card>
+            <CardContent className="space-y-2 p-4">
+              {deck.map((q, i) => {
+                const isAnswered = answers[q.id] !== undefined;
+                const isFlagged = flags[q.id];
+                return (
+                  <button
+                    key={q.id}
+                    type="button"
+                    onClick={() => {
+                      goTo(i);
+                      setPhase("running");
+                    }}
+                    className="flex w-full items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-left text-sm transition-colors hover:border-claude-orange/50"
+                  >
+                    <span className="flex items-center gap-2 truncate">
+                      <span className="font-mono text-xs text-claude-muted">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="truncate">{q.stem}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      {isFlagged && (
+                        <Flag className="h-4 w-4 text-amber-500" />
+                      )}
+                      {isAnswered ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={submit}>Submit &amp; score</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                // Jump to the first unanswered question if any.
+                const firstUnanswered = deck.findIndex(
+                  (q) => answers[q.id] === undefined
+                );
+                goTo(firstUnanswered >= 0 ? firstUnanswered : 0);
+                setPhase("running");
+              }}
+            >
+              Back to questions
+            </Button>
+          </div>
         </div>
       )}
 

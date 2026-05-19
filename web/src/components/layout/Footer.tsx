@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Github } from "lucide-react";
 
-import { REPO_URL } from "@/lib/site";
+import { REPO_URL, SITE_NAME, SITE_LEGAL } from "@/lib/site";
 import { DOMAIN_INFO } from "@/lib/learn";
 
 export const DISCLAIMER =
@@ -61,15 +61,17 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-sm">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-xl">CCAF</span>
-              <span className="font-display text-xl text-claude-orange">
-                Guide
-              </span>
+            <div className="font-display text-xl">
+              Get Claude{" "}
+              <span className="text-claude-orange">Certified</span>
             </div>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-claude-muted">
+              {SITE_LEGAL}
+            </p>
             <p className="mt-3 text-sm text-muted-foreground">
-              A free, open-source study system for the Claude Certified
-              Architect – Foundations exam.
+              {SITE_NAME} is a free, open-source study system for the Claude
+              Certified Architect – Foundations exam. It is an independent
+              community resource and does not issue certifications.
             </p>
           </div>
 

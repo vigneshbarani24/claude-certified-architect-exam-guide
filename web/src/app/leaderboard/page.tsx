@@ -7,7 +7,8 @@ import { Crown, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useProgress } from "@/components/progress/XpProvider";
-import { ShareCard, REPO_URL } from "@/components/share/ShareCard";
+import { ShareCard } from "@/components/share/ShareCard";
+import { MOCK_EXAM_URL } from "@/lib/site";
 
 export default function LeaderboardPage() {
   const { mounted, snapshot, setDisplayName } = useProgress();
@@ -36,7 +37,7 @@ export default function LeaderboardPage() {
   const name = snapshot.displayName || "You";
 
   const challenge = async () => {
-    const text = `My best CCAF mock score is ${bestPct}% (${snapshot.rank.name} rank). Can you beat it? ${REPO_URL}/web/mock-exam`;
+    const text = `My best CCAF mock score is ${bestPct}% (${snapshot.rank.name} rank). Can you beat it? ${MOCK_EXAM_URL}`;
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(text);

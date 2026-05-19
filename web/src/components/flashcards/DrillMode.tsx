@@ -176,7 +176,7 @@ export function DrillMode({
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (finished) return;
-      if (e.code === "Space") {
+      if (e.code === "Space" || e.code === "Enter" || e.code === "NumpadEnter") {
         e.preventDefault();
         flip();
       } else if (e.code === "ArrowRight") {
@@ -360,8 +360,8 @@ export function DrillMode({
       </div>
 
       <p className="text-center font-mono text-xs text-claude-muted">
-        Shortcuts: Space flip · ← prev · → next · when flipped 1 again · 2
-        hard · 3 good
+        Shortcuts: Space / Enter flip · ← prev · → next · when flipped 1
+        again · 2 hard · 3 good
       </p>
     </div>
   );

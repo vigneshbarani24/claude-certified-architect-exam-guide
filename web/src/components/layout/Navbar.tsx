@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, Github, Menu, Flame } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { REPO_URL } from "@/lib/site";
+import { REPO_URL, SITE_NAME, SITE_LEGAL } from "@/lib/site";
 
 interface NavItem {
   href: string;
@@ -116,6 +116,16 @@ function XpChip({
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  // Compress-on-scroll: shrink height + deepen blur past a threshold. Purely
+  // cosmetic and SSR-safe (starts false; updates after mount). The class
+  // transition is disabled under prefers-reduced-motion via motion-reduce:*.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const linkClass = (active: boolean) =>
     cn(
@@ -126,14 +136,27 @@ export function Navbar() {
     );
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-display text-2xl leading-none text-foreground">
-            CCAF
+    <header
+      className={cn(
+        "sticky top-0 z-40 w-full border-b border-border transition-[background-color,backdrop-filter] duration-300 motion-reduce:transition-none",
+        scrolled
+          ? "bg-background/95 backdrop-blur-xl"
+          : "bg-background/80 backdrop-blur-md"
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto flex max-w-7xl items-center justify-between px-4 transition-[height] duration-300 motion-reduce:transition-none sm:px-6",
+          scrolled ? "h-14" : "h-16"
+        )}
+      >
+        <Link href="/" className="flex flex-col gap-0.5" aria-label={SITE_NAME}>
+          <span className="font-display text-xl leading-none text-foreground sm:text-2xl">
+            Get Claude{" "}
+            <span className="text-claude-orange">Certified</span>
           </span>
-          <span className="font-display text-2xl leading-none text-claude-orange">
-            Guide
+          <span className="hidden font-mono text-[10px] uppercase tracking-wider text-claude-muted sm:block">
+            {SITE_LEGAL}
           </span>
         </Link>
 
@@ -217,8 +240,11 @@ export function Navbar() {
             <SheetContent side="right" className="w-72 overflow-y-auto">
               <SheetHeader>
                 <SheetTitle className="font-display text-xl">
-                  CCAF Guide
+                  {SITE_NAME}
                 </SheetTitle>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-claude-muted">
+                  {SITE_LEGAL}
+                </p>
               </SheetHeader>
               <div className="mt-4 space-y-2">
                 <XpChip

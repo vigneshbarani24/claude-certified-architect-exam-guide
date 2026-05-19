@@ -1,83 +1,36 @@
 import Link from "next/link";
 import {
-  BookOpen,
-  FileText,
-  Github,
+  ArrowRight,
+  Stethoscope,
+  GraduationCap,
   Layers,
   ListChecks,
-  ArrowRight,
-  Download,
-  Trophy,
-  Flame,
-  Share2,
   Compass,
-  GraduationCap,
-  Stethoscope,
+  Github,
+  Wrench,
+  ShieldCheck,
+  Repeat,
+  BookOpenCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DomainWeights } from "@/components/home/DomainWeights";
-import { DOMAIN_INFO } from "@/lib/learn";
-import { REPO_URL } from "@/lib/site";
+import { ReadinessHero } from "@/components/landing/ReadinessHero";
+import { StatStrip } from "@/components/landing/StatStrip";
+import { DomainCards } from "@/components/landing/DomainCards";
+import { Faq } from "@/components/landing/Faq";
+import { REPO_URL, SITE_LEGAL } from "@/lib/site";
 
-const FEATURES = [
-  {
-    title: "Curriculum",
-    desc: "A guided path through all five domains, each with its guide chapters and targeted practice.",
-    href: "/learn",
-    icon: GraduationCap,
-  },
-  {
-    title: "Study Guide",
-    desc: "A single-file, domain-organized guide covering every objective with concept callouts and code.",
-    href: "/guide",
-    icon: BookOpen,
-  },
-  {
-    title: "Mock Exam",
-    desc: "Scenario-based practice questions with instant feedback and a per-domain score breakdown.",
-    href: "/mock-exam",
-    icon: ListChecks,
-  },
-  {
-    title: "Flashcards",
-    desc: "Drill the core facts with a 3D flip deck, domain/difficulty filters, and hard-card marking.",
-    href: "/flashcards",
-    icon: Layers,
-  },
-  {
-    title: "NotebookLM",
-    desc: "Download per-domain markdown bundles to load into Google NotebookLM as a study source.",
-    href: "/notebooklm",
-    icon: FileText,
-  },
-  {
-    title: "Learn Dashboard",
-    desc: "Personalized study plan: domain mastery, what to study next, spaced review, and history.",
-    href: "/learn/progress",
-    icon: Compass,
-  },
-  {
-    title: "Profile & XP",
-    desc: "Earn XP, climb rank tiers, build a streak, and unlock badges as you study.",
-    href: "/profile",
-    icon: Trophy,
-  },
-  {
-    title: "Leaderboard",
-    desc: "Your personal mock-score board, kept on-device. Share a card to challenge friends.",
-    href: "/leaderboard",
-    icon: Share2,
-  },
-];
+// Server component, fully static. All interactive subtrees (ReadinessHero,
+// StatStrip, DomainCards) are client + mounted-gated, so the route stays ○.
+export const dynamic = "force-static";
 
-const LOOP = [
+const STUDY_LOOP = [
   {
     n: "1",
     title: "Diagnose",
-    desc: "Take the short diagnostic to surface your weakest domains.",
+    desc: "A 12-question check surfaces your weakest, highest-weight domains.",
     href: "/learn/diagnostic",
     icon: Stethoscope,
   },
@@ -105,142 +58,113 @@ const LOOP = [
   {
     n: "5",
     title: "Track",
-    desc: "Watch mastery climb and let it route your next session.",
+    desc: "Mastery updates on-device and routes your next session.",
     href: "/learn/progress",
     icon: Compass,
   },
 ];
 
-const RANK_TIERS = [
-  { name: "Apprentice", min: "0 XP" },
-  { name: "Practitioner", min: "300 XP" },
-  { name: "Architect", min: "1,000 XP" },
-  { name: "Master Architect", min: "2,500 XP" },
+const PRACTICE_MODES = [
+  {
+    title: "Diagnostic",
+    when: "Start here, or whenever you want a fast, honest read on where you stand across all five domains.",
+    href: "/learn/diagnostic",
+    icon: Stethoscope,
+  },
+  {
+    title: "Drill",
+    when: "Daily — short spaced-repetition sessions that resurface cards right before you would forget them.",
+    href: "/learn/drill",
+    icon: Layers,
+  },
+  {
+    title: "Mock Exam",
+    when: "When a domain feels solid — pick 1, 4, or all 6 scenarios and answer under exam-like pressure.",
+    href: "/mock-exam",
+    icon: ListChecks,
+  },
+  {
+    title: "Build Exercises",
+    when: "When you learn by doing — hands-on tasks that turn concepts into working understanding.",
+    href: "/learn/exercises",
+    icon: Wrench,
+  },
 ];
 
-const BADGE_SHOWCASE = [
-  "First Steps",
-  "Domain Cleared",
-  "Centurion",
-  "Perfect Mock",
-  "Pass",
-  "Streak 7",
-  "Streak 30",
+const VALUE_PROPS = [
+  {
+    title: "Original & docs-grounded",
+    desc: "Every flashcard, question, and chapter is written for this project and grounded in public Anthropic documentation and the official exam guide — no reproduced exam items.",
+    icon: BookOpenCheck,
+  },
+  {
+    title: "Private by construction",
+    desc: "There is no backend, database, analytics, or runtime network call. Your mastery, streak, and rank are computed and stored only in your browser.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Spaced repetition + mastery",
+    desc: "A Leitner scheduler and weighted per-domain mastery model decide what to resurface and where to send you next, so study time lands where the points are.",
+    icon: Repeat,
+  },
 ];
 
 export default function Home() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
-      {/* HERO */}
-      <section className="py-20 text-center sm:py-28">
-        <Badge variant="outline" className="mb-6">
-          Claude Certified Architect – Foundations
-        </Badge>
-        <h1 className="mx-auto max-w-3xl font-display text-5xl leading-tight sm:text-6xl">
-          Pass the CCAF Exam.
-          <br />
-          <span className="text-claude-orange">Free. Open Source.</span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-          A community-built study system: guide, mock exam, flashcards, and
-          NotebookLM bundles. No accounts, no paywalls.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild size="lg">
-            <Link href="/learn">
-              Start the curriculum
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/learn/diagnostic">
-              <Stethoscope className="h-4 w-4" />
-              Take the diagnostic
-            </Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* QUICK STATS */}
-      <section className="rounded-lg border border-border bg-card">
-        <div className="grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-4 sm:divide-y-0">
-          {[
-            ["5", "Domains"],
-            ["250", "Flashcards"],
-            ["50+", "Practice Questions"],
-            ["Free", "Forever"],
-          ].map(([big, small]) => (
-            <div key={small} className="p-6 text-center">
-              <div className="font-display text-3xl text-claude-orange">
-                {big}
-              </div>
-              <div className="mt-1 font-mono text-xs uppercase tracking-wider text-claude-muted">
-                {small}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* DOMAIN WEIGHTS */}
-      <section className="py-20">
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          <div>
-            <h2 className="font-display text-3xl">Know the weighting</h2>
-            <p className="mt-3 text-muted-foreground">
-              The CCAF exam is weighted across five domains. Spend your study
-              time where the points are — Agentic Architecture alone is over a
-              quarter of the exam.
-            </p>
+      {/* HERO — editorial split */}
+      <section className="grid gap-10 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
+        <div>
+          <Badge variant="outline" className="mb-6">
+            Claude Certified Architect – Foundations
+          </Badge>
+          <h1 className="font-display text-5xl leading-tight sm:text-6xl">
+            Get Claude{" "}
+            <span className="text-claude-orange">Certified</span>
+          </h1>
+          <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+            A complete, free, open-source study system for the CCAF exam —
+            guide, diagnostic, mock exam, and spaced-repetition flashcards. The
+            only dashboard here is your own real readiness, computed on your
+            device.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button asChild size="lg">
+              <Link href="/learn/diagnostic">
+                <Stethoscope className="h-4 w-4" />
+                Take the diagnostic
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/learn">
+                Review the curriculum
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
-          <DomainWeights />
+          <p className="mt-6 font-mono text-xs uppercase tracking-wider text-claude-muted">
+            {SITE_LEGAL} · does not issue certifications · CC BY 4.0
+          </p>
         </div>
+        <ReadinessHero />
       </section>
 
-      {/* DOMAIN CARDS */}
-      <section className="pb-20">
-        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <h2 className="font-display text-3xl">Study by domain</h2>
-          <Link
-            href="/learn"
-            className="text-sm text-claude-orange hover:underline"
-          >
-            Open the full curriculum →
-          </Link>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {DOMAIN_INFO.map((d) => (
-            <Link key={d.slug} href={`/learn/${d.slug}`}>
-              <Card className="h-full transition-colors hover:border-claude-orange/50">
-                <CardContent className="space-y-3 p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="font-mono text-claude-orange">
-                      D{d.domain}
-                    </span>
-                    <Badge variant="outline">{d.weight}%</Badge>
-                  </div>
-                  <h3 className="font-display text-lg leading-tight">
-                    {d.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {d.tagline}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* HONEST STAT STRIP */}
+      <StatStrip />
 
-      {/* THE LOOP */}
-      <section className="pb-20">
-        <h2 className="mb-8 text-center font-display text-3xl">
-          A loop that adapts to you
+      {/* THE STUDY LOOP */}
+      <section className="py-20">
+        <h2 className="mb-3 text-center font-display text-3xl">
+          One loop, repeated until ready
         </h2>
+        <p className="mx-auto mb-10 max-w-xl text-center text-muted-foreground">
+          Diagnose, learn, drill, mock, track — each step feeds the next, and
+          your real mastery decides where you go.
+        </p>
         <div className="grid gap-5 sm:grid-cols-3 lg:grid-cols-5">
-          {LOOP.map((s) => (
+          {STUDY_LOOP.map((s) => (
             <Link key={s.n} href={s.href}>
-              <Card className="h-full transition-colors hover:border-claude-orange/50">
+              <Card className="group h-full transition-all hover:-translate-y-1 hover:border-claude-orange/50 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                 <CardContent className="space-y-3 p-6">
                   <div className="flex items-center justify-between">
                     <s.icon className="h-6 w-6 text-claude-orange" />
@@ -257,19 +181,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* FIVE DOMAIN CARDS */}
       <section className="pb-20">
-        <h2 className="mb-8 text-center font-display text-3xl">
-          Everything you need
+        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-display text-3xl">Study by domain</h2>
+            <p className="mt-2 text-muted-foreground">
+              The exam is weighted — your mastery bar on each card is real and
+              updates as you study.
+            </p>
+          </div>
+          <Link
+            href="/learn"
+            className="text-sm text-claude-orange hover:underline"
+          >
+            Open the full curriculum →
+          </Link>
+        </div>
+        <DomainCards />
+      </section>
+
+      {/* PRACTICE MODES */}
+      <section className="pb-20">
+        <h2 className="mb-3 text-center font-display text-3xl">
+          Four ways to practice
         </h2>
+        <p className="mx-auto mb-10 max-w-xl text-center text-muted-foreground">
+          Each mode has a job — here is when to reach for it.
+        </p>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((f) => (
-            <Link key={f.title} href={f.href}>
-              <Card className="h-full transition-colors hover:border-claude-orange/50">
+          {PRACTICE_MODES.map((m) => (
+            <Link key={m.title} href={m.href}>
+              <Card className="group h-full transition-all hover:-translate-y-1 hover:border-claude-orange/50 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
                 <CardContent className="space-y-3 p-6">
-                  <f.icon className="h-7 w-7 text-claude-orange" />
-                  <h3 className="font-display text-xl">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground">{f.desc}</p>
+                  <m.icon className="h-7 w-7 text-claude-orange" />
+                  <h3 className="font-display text-xl">{m.title}</h3>
+                  <p className="text-sm text-muted-foreground">{m.when}</p>
                 </CardContent>
               </Card>
             </Link>
@@ -277,143 +224,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NOTEBOOKLM STRIP */}
+      {/* WHY THIS WORKS */}
       <section className="pb-20">
-        <Card>
-          <CardContent className="space-y-5 p-8">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="font-display text-2xl">NotebookLM bundles</h2>
-                <p className="text-sm text-muted-foreground">
-                  Per-domain markdown you can drop into Google NotebookLM.
-                </p>
-              </div>
-              <Button asChild variant="outline">
-                <Link href="/notebooklm">
-                  <Download className="h-4 w-4" />
-                  All bundles
-                </Link>
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {DOMAIN_INFO.map((d) => (
-                <Button
-                  key={d.domain}
-                  asChild
-                  variant="secondary"
-                  size="sm"
-                >
-                  <Link href="/notebooklm">
-                    D{d.domain} · {d.name}
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <h2 className="mb-10 text-center font-display text-3xl">
+          Why this works
+        </h2>
+        <div className="grid gap-5 lg:grid-cols-3">
+          {VALUE_PROPS.map((v) => (
+            <Card key={v.title} className="h-full">
+              <CardContent className="space-y-3 p-6">
+                <v.icon className="h-7 w-7 text-claude-orange" />
+                <h3 className="font-display text-xl">{v.title}</h3>
+                <p className="text-sm text-muted-foreground">{v.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </section>
 
-      {/* GAMIFIED LOOP */}
+      {/* FAQ */}
       <section className="pb-20">
-        <div className="rounded-lg border border-border bg-card p-8 sm:p-10">
-          <div className="text-center">
-            <Badge variant="outline" className="mb-4">
-              New
-            </Badge>
-            <h2 className="font-display text-3xl">
-              Track your progress &amp; share your score
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-              Every card, question, and section you complete earns XP. Climb
-              the rank tiers, keep a daily streak alive, unlock badges, and
-              export a branded card to challenge friends. All stored on your
-              device — no account, no server.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {/* Ranks */}
-            <div>
-              <h3 className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-claude-muted">
-                <Trophy className="h-4 w-4 text-claude-orange" />
-                Rank tiers
-              </h3>
-              <div className="space-y-2">
-                {RANK_TIERS.map((r) => (
-                  <div
-                    key={r.name}
-                    className="flex items-center justify-between rounded-md border border-border px-3 py-2"
-                  >
-                    <span className="font-display text-lg">{r.name}</span>
-                    <span className="font-mono text-xs text-claude-orange">
-                      {r.min}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Badges */}
-            <div>
-              <h3 className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-claude-muted">
-                <Flame className="h-4 w-4 text-claude-orange" />
-                Unlockable badges
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {BADGE_SHOWCASE.map((b) => (
-                  <span
-                    key={b}
-                    className="rounded-md border border-claude-orange/40 bg-claude-orange/5 px-3 py-1.5 font-mono text-xs text-claude-orange"
-                  >
-                    {b}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-4 text-sm text-muted-foreground">
-                Clear each domain, hit a perfect mock, pass the proxy, and
-                build streaks of 7 and 30 days.
-              </p>
-            </div>
-
-            {/* Share card mockup */}
-            <div>
-              <h3 className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-claude-muted">
-                <Share2 className="h-4 w-4 text-claude-orange" />
-                Shareable card
-              </h3>
-              <div className="rounded-lg border border-border bg-[#0a0a0a] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-claude-orange">
-                  CCAF · Claude Certified Architect
-                </p>
-                <p className="mt-2 font-display text-2xl">My Study Rank</p>
-                <p className="font-display text-3xl text-claude-orange">
-                  Architect
-                </p>
-                <p className="mt-2 font-mono text-xs text-foreground">
-                  1,240 XP · 12-day streak
-                </p>
-                <p className="mt-4 font-mono text-[10px] text-claude-muted">
-                  github.com/vigneshbarani24
-                </p>
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Generated client-side with Canvas — download a PNG or share
-                straight to X / LinkedIn.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild>
-              <Link href="/profile">
-                View your profile
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/leaderboard">Personal leaderboard</Link>
-            </Button>
-          </div>
+        <h2 className="mb-10 text-center font-display text-3xl">
+          Frequently asked
+        </h2>
+        <div className="mx-auto max-w-3xl">
+          <Faq />
         </div>
       </section>
 
@@ -422,13 +257,13 @@ export default function Home() {
         <div className="rounded-lg border border-border bg-gradient-to-br from-claude-orange/10 to-transparent p-10 text-center">
           <h2 className="font-display text-3xl">Open source, forever</h2>
           <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            Found a mistake or want to add content? Contributions welcome under
-            CC BY 4.0.
+            Found a mistake or want to add content? Contributions are welcome
+            under CC BY 4.0.
           </p>
           <Button asChild size="lg" className="mt-6">
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
               <Github className="h-4 w-4" />
-              Star on GitHub
+              View on GitHub
             </a>
           </Button>
         </div>

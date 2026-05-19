@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { XpProvider } from "@/components/progress/XpProvider";
+import { SITE_NAME, SITE_URL, SITE_LEGAL } from "@/lib/site";
 
 const display = Instrument_Serif({
   weight: "400",
@@ -26,10 +27,32 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_DESCRIPTION =
+  "An independent, free, open-source study system for the Claude Certified Architect – Foundations exam: study guide, diagnostic, mock exam, flashcards, and NotebookLM bundles. Not affiliated with Anthropic; this site does not issue certifications.";
+
 export const metadata: Metadata = {
-  title: "CCAF Guide — Claude Certified Architect Foundations",
-  description:
-    "Free, open-source study system for the Claude Certified Architect – Foundations (CCAF) exam: study guide, mock exam, flashcards, and NotebookLM bundles.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Claude Certified Architect Foundations study system`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    url: SITE_URL,
+    title: `${SITE_NAME} — independent CCAF study system`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — independent CCAF study system`,
+    description: SITE_DESCRIPTION,
+  },
+  other: {
+    "site-legal": SITE_LEGAL,
+  },
 };
 
 export default function RootLayout({

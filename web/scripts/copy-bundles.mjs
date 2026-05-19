@@ -84,6 +84,48 @@ async function copyQuestionData() {
   }
 }
 
+// Build-time only: bake the GitHub star count into a static JSON file so the
+// landing page can show honest social proof WITHOUT any runtime network call.
+// Exactly one unauthenticated request; any failure (offline CI, rate limit)
+// writes { stars: null } and the UI omits the figure gracefully.
+async function writeSiteStats() {
+  const dest = path.join(webRoot, "src", "data", "site-stats.json");
+  const repoApi =
+    "https://api.github.com/repos/vigneshbarani24/claude-certified-architect-exam-guide";
+  const generatedAtISO = new Date().toISOString();
+  let stars = null;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(repoApi, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        "User-Agent": "ccaf-guide-build-script",
+      },
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
+    if (res.ok) {
+      const data = await res.json();
+      if (typeof data.stargazers_count === "number") {
+        stars = data.stargazers_count;
+      }
+    }
+  } catch (err) {
+    console.log(
+      `[copy-bundles] GitHub stars fetch failed — writing null. (${err.message})`
+    );
+  }
+  await fs.mkdir(path.dirname(dest), { recursive: true });
+  await fs.writeFile(
+    dest,
+    JSON.stringify({ stars, generatedAtISO }, null, 2) + "\n",
+    "utf8"
+  );
+  console.log(`[copy-bundles] wrote site-stats.json (stars: ${stars}).`);
+}
+
 await copyNotebookBundles();
 await copyFlashcardData();
 await copyQuestionData();
+await writeSiteStats();

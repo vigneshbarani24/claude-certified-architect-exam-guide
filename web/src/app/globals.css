@@ -181,6 +181,11 @@
   border-collapse: collapse;
   margin: 1.25rem 0;
   font-size: 0.9rem;
+  /* Let wide tables scroll horizontally on small screens instead of
+     overflowing the viewport. `display:block` keeps desktop layout intact
+     because the table still fills its container. */
+  display: block;
+  overflow-x: auto;
 }
 .guide-prose th,
 .guide-prose td {

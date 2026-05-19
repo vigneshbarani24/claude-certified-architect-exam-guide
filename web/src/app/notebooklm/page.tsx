@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import fs from "node:fs";
 import path from "node:path";
 import { Download, FileText, HelpCircle } from "lucide-react";
@@ -14,6 +15,12 @@ import {
 } from "@/components/ui/tooltip";
 
 export const dynamic = "force-static";
+
+export const metadata: Metadata = {
+  title: "NotebookLM Bundles",
+  description:
+    "Download per-domain markdown bundles to load into Google NotebookLM as a study source for the Claude Certified Architect – Foundations exam.",
+};
 
 interface Bundle {
   key: string;

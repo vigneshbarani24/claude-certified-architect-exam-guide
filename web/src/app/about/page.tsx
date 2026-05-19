@@ -10,9 +10,9 @@ import { DISCLAIMER } from "@/components/layout/Footer";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "About — CCAF Guide",
+  title: "About",
   description:
-    "What this project is: a free, independent, community-built study system for the Claude Certified Architect – Foundations exam, licensed CC BY 4.0 and not affiliated with Anthropic.",
+    "What this project is: a free, independent, community-built study system for the Claude Certified Architect – Foundations exam, licensed CC BY 4.0, not affiliated with Anthropic, and does not issue certifications.",
 };
 
 export default function AboutPage() {
@@ -44,10 +44,15 @@ export default function AboutPage() {
           </h2>
           <p>
             This is an independent community resource. It is not affiliated
-            with, endorsed by, or sponsored by Anthropic. The exam structure it
-            references — the five domains, their weights, and task counts — is
-            factual information from the publicly available official Anthropic
-            exam guide. No exam questions are reproduced or paraphrased.
+            with, endorsed by, or sponsored by Anthropic, and it does
+            <strong> not issue certifications</strong> — the official exam and
+            credential belong to Anthropic. &ldquo;Get Claude Certified&rdquo;
+            is the name of this study system, used to describe its purpose;
+            &ldquo;Claude&rdquo; and &ldquo;Anthropic&rdquo; are referenced
+            nominatively only. The exam structure it references — the five
+            domains, their weights, and task counts — is factual information
+            from the publicly available official Anthropic exam guide. No exam
+            questions are reproduced or paraphrased.
           </p>
 
           <h2 className="font-display text-xl text-foreground">

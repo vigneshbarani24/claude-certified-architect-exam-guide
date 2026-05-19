@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DOMAIN_META } from "@/data/scenarios";
 import { useProgress } from "@/components/progress/XpProvider";
-import { ShareCard, REPO_URL } from "@/components/share/ShareCard";
+import { ShareCard } from "@/components/share/ShareCard";
+import { MOCK_EXAM_URL } from "@/lib/site";
 import { PASS_THRESHOLD_PCT } from "@/lib/progress";
 import { DomainProgress, type DomainStat } from "./DomainProgress";
 
@@ -70,7 +71,7 @@ export function ScoreBoard({
   }
 
   const challenge = async () => {
-    const text = `I scored ${correct}/${total} on the free CCAF mock exam. Can you beat it? ${REPO_URL}/web/mock-exam`;
+    const text = `I scored ${correct}/${total} on the free CCAF mock exam. Can you beat it? ${MOCK_EXAM_URL}`;
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
