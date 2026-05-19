@@ -49,11 +49,19 @@ Structured Output · 5 Context Management & Reliability.
 
 ## 2. Adding Practice Questions
 
-Mock-exam questions live in `web/src/data/questions.json`. Each question:
+The canonical question bank is `questions/all-questions.json`, validated
+against `questions/schema.json`. The web app consumes a copy at
+`web/src/data/questions.json`; the prebuild step
+(`web/scripts/copy-bundles.mjs`) copies the canonical file over it, and the
+copy is committed so the build works without the prebuild (same contract as
+`flashcards/all-domains.json`). **Edit `questions/all-questions.json`, then
+run `node web/scripts/copy-bundles.mjs` so the two files stay byte-identical.**
+
+Each question object:
 
 ```json
 {
-  "id": "q-051",
+  "id": "q-d1-015",
   "scenario": "Customer Support Resolution Agent",
   "domain": 1,
   "stem": "The situation and the question.",
@@ -64,15 +72,26 @@ Mock-exam questions live in `web/src/data/questions.json`. Each question:
     { "label": "D", "text": "..." }
   ],
   "correct": "A",
-  "explanation": "Why A is correct and why the distractors are wrong."
-  ,"tags": ["escalation", "programmatic-enforcement"]
+  "explanation": "Why A is correct and why the distractors are wrong.",
+  "tags": ["escalation", "programmatic-enforcement"]
 }
 ```
 
-- Map every question to one of the six exam scenarios and one domain.
-- An `explanation` is required and should explain why the correct answer wins
-  *and* why each distractor is a plausible-but-wrong choice.
+- `id` follows the scheme `q-dN-NNN` where `N` is the domain (1–5) and `NNN`
+  is a zero-padded sequence number within that domain (e.g. `q-d1-001`,
+  `q-d2-001`). The domain digit in the id must equal the `domain` field.
+  Ids and stems must be unique.
+- `scenario` must be **exactly** one of the six official scenario titles in
+  `web/src/data/scenarios.ts`.
+- `options` is exactly four entries with labels `A`, `B`, `C`, `D` in that
+  order — an option's letter must match its position.
+- Map every question to one domain (1–5). An `explanation` is required and
+  should explain why the correct answer wins *and* why each distractor is a
+  plausible-but-wrong choice. `tags` is 1–4 kebab-case tags.
 - Distractors must be plausible, not obviously wrong.
+- CI validates the bank with `scripts/python/validate_content.py` (counts,
+  id scheme, scenarios, option order, duplicates, web-copy byte-match) and
+  with `ajv` against `questions/schema.json`.
 
 ## 3. Correcting Content
 

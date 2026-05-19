@@ -32,6 +32,12 @@ jobs:
           -s flashcards/schema.json
           -d flashcards/all-domains.json
 
+      - name: Validate all-questions.json against JSON schema
+        run: >
+          npx --yes ajv-cli@5 validate --all-errors
+          -s questions/schema.json
+          -d questions/all-questions.json
+
       - name: Lint markdown (guide + notebooklm)
         run: >
           npx --yes markdownlint-cli2

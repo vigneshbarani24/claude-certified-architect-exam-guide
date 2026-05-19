@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CCAF practice question bank",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "scenario", "domain", "stem", "options", "correct", "explanation", "tags"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^q-d[1-5]-[0-9]{3}$" },
+      "scenario": {
+        "type": "string",
+        "enum": [
+          "Customer Support Resolution Agent",
+          "Code Generation with Claude Code",
+          "Multi-Agent Research System",
+          "Developer Productivity with Claude",
+          "Claude Code for Continuous Integration",
+          "Structured Data Extraction"
+        ]
+      },
+      "domain": { "type": "integer", "minimum": 1, "maximum": 5 },
+      "stem": { "type": "string", "minLength": 1 },
+      "options": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "text"],
+          "properties": {
+            "label": { "type": "string", "enum": ["A", "B", "C", "D"] },
+            "text": { "type": "string", "minLength": 1 }
+          }
+        }
+      },
+      "correct": { "type": "string", "enum": ["A", "B", "C", "D"] },
+      "explanation": { "type": "string", "minLength": 1 },
+      "tags": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 4,
+        "items": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

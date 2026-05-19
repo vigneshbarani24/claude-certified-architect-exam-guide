@@ -63,5 +63,27 @@ async function copyFlashcardData() {
   }
 }
 
+async function copyQuestionData() {
+  const src = path.join(repoRoot, "questions", "all-questions.json");
+  const dest = path.join(webRoot, "src", "data", "questions.json");
+  if (!(await exists(src))) {
+    console.log(
+      "[copy-bundles] questions/all-questions.json not found — keeping placeholder data."
+    );
+    return;
+  }
+  try {
+    const text = await fs.readFile(src, "utf8");
+    JSON.parse(text); // validate before overwriting
+    await fs.copyFile(src, dest);
+    console.log("[copy-bundles] copied real questions/all-questions.json.");
+  } catch (err) {
+    console.log(
+      `[copy-bundles] all-questions.json invalid JSON — keeping placeholder. (${err.message})`
+    );
+  }
+}
+
 await copyNotebookBundles();
 await copyFlashcardData();
+await copyQuestionData();
